@@ -1,32 +1,21 @@
 from pymoo.core.problem import Problem
-from typing import Final
-import FO
+from typing import final
+from epyt import epanet
 
 NUMBEROFPIPES: Final = 8
 
 class TesteProb(Problem):
-    def __init__(self, n_obj = 2, **kwargs):
-        FO.InicializarProblema()
+    def __init__(self):
+        Xmin = []
+        Xmax = []
 
-        self.NumberOfVariables: int
-        self.n_populacao: int
-        self.n_geracao: int
-        self.saida = [100]
+        for i in range(NUMBEROFPIPES):
+            Xmin.append(0)
+            Xmax.append(13)
 
-        self.NumberOfVariables = NUMBEROFPIPES
+        super().__init__(n_var = NUMBEROFPIPES, n_obj = 2, x1 = Xmin, xu= Xmax, vtype = float)
 
-        self.Xmin = []
-        self.Xmax = []
-        for i in range(self.NumberOfVariables):
-            self.Xmin.append(0)
-            self.Xmax.append(13)
-
-        self.Objectives = []
-
-
-        super().__init__(n_var = self.NumberOfVariables, n_obj = NUMBEROFPIPES)
-    
-    def _evaluate(self, x, out, *args, **kwargs):
+    def __evaluate(self, x, out, *args, **kwargs):
         pass
 
 Problem = TesteProb()
