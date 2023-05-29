@@ -2,7 +2,14 @@
 import sys
 from epyt import epanet
 
-def FuncaoObjetivo(diameter_pattern):
+def FuncaoObjetivo(diameter_pattern, FO1 = 0, FO2 = 0):
+
+    total_cost:int = 0
+    sum_RI: float = 0.0
+    A: float = 0.0
+    B: float = 0.0
+    Hmin: float = 10.0
+
     d = epanet('EPANETSources/Alperovits_Shamir.inp')
 
     max1:int = sys.maxsize
@@ -13,7 +20,7 @@ def FuncaoObjetivo(diameter_pattern):
     Njunctions = Nnodes - Nres_tanks
 
     diameter = []
-    pipe_cost = [Nlinks]
+    pipe_cost = []
 
     finput = open('MainProgram/Tabela_Custos.txt', 'rt')
 
@@ -34,18 +41,42 @@ def FuncaoObjetivo(diameter_pattern):
         diameter_base.append(float(obs2))
         cost_base.append(float(obs3))
 
-    print(diameter_base)
-    print(cost_base)
-    print(number_diameters)
-
     finput.close()
 
     for i in range(Nlinks):
         aux = diameter_pattern[i]
         diameter.append(diameter_base[aux])
-        #
+        d.api.ENsetlinkvalue(i + 1, d.ToolkitConstants.EN_DIAMETER, diameter[i])
+        pipe_length = d.api.ENgetlinkvalue(i + 1, d.ToolkitConstants.EN_LENGTH)
+        pipe_cost.append(cost_base[aux]*pipe_length)
+        
+    t = d.runHydraulicAnalysis()
 
+    Warning6 = False
+    
+    for i in range(Njunctions):
 
+        junction_pressure = d.api.ENgetnodevalue(i + 1, d.ToolkitConstants.EN_PRESSURE)
+
+        if (junction_pressure < Hmin):
+            Warning6 = True
+            total_cost = 10000000.0
+            sum_RI = 0.0
+            print('Warning 6')
+            break
+
+        junction_demand = d.api.ENgetnodevalue(i + 1, d.ToolkitConstants.EN_DEMAND)
+        aux1 = junction_demand * (junction_pressure-Hmin)
+        A += aux1
+        aux2 = junction_demand * Hmin
+        B += aux2
+
+    if (Warning6 == False):
+        sum_RI = 100*(A / B)
+    
+    print(sum_RI)
+
+    return total_cost, sum_RI
 #--------------------------------------------------
 
 if __name__ == '__main__':
@@ -108,14 +139,8 @@ if __name__ == '__main__':
 
 #     number_diameters: int
 #     pipe_length: int
-#     total_cost:int = 0
 
 #     junction_pressure: float
 #     junction_demant: float
-#     sum_RI: float = 0.0
-#     aux1: float
-#     aux2: float
-#     A: float = 0.0
-#     B: float = 0.0
-#     Hmin: float = 10.0
+
     
