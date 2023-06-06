@@ -2,7 +2,7 @@
 import sys
 from epyt import epanet
 
-def FuncaoObjetivo(diameter_pattern, FO1 = 0, FO2 = 0):
+def FuncaoObjetivo(diameter_pattern):
 
     total_cost:int = 0
     sum_RI: float = 0.0
@@ -10,22 +10,24 @@ def FuncaoObjetivo(diameter_pattern, FO1 = 0, FO2 = 0):
     B: float = 0.0
     Hmin: float = 10.0
 
-    d = epanet('../EPANETSources/Alperovits_Shamir.inp')
+    d = epanet('./EPANETSources/Alperovits_Shamir.inp')
     d.openHydraulicAnalysis()
-    d.initializeHydraulicAnalysis()
+    d.initializeHydraulicAnalysis(0)
 
 
     max1:int = sys.maxsize
 
     Nnodes = d.getNodeCount()
     Nlinks = d.getLinkCount()
-    Nres_tanks = d.getNodeTankCount()
+    Nres_tanks = d.getNodeTankReservoirCount()
     Njunctions = Nnodes - Nres_tanks
+
+    print(Nlinks)
 
     diameter = []
     pipe_cost = []
 
-    finput = open('Tabela_Custos.txt', 'rt')
+    finput = open('./MainProgram/Tabela_Custos.txt', 'rt')
 
     number_diameters = int(finput.readline().split()[0])
 
@@ -52,6 +54,7 @@ def FuncaoObjetivo(diameter_pattern, FO1 = 0, FO2 = 0):
         d.api.ENsetlinkvalue(i + 1, d.ToolkitConstants.EN_DIAMETER, diameter[i])
         pipe_length = d.api.ENgetlinkvalue(i + 1, d.ToolkitConstants.EN_LENGTH)
         pipe_cost.append(cost_base[aux]*pipe_length)
+        total_cost += pipe_cost[i]
         
     # Hydraulic Analysis
     t = d.runHydraulicAnalysis()

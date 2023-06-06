@@ -1,6 +1,7 @@
 from pymoo.core.problem import Problem
 from typing import final
 from epyt import epanet
+from FO import FuncaoObjetivo
 
 NUMBEROFPIPES: final = 8
 
@@ -16,7 +17,11 @@ class TesteProb(Problem):
 
         super().__init__(n_var = self.NumberOfVariables, n_obj = 2, x1 = self.Xmin, xu= self.Xmax, vtype = float)
 
-    def __evaluate(self, x, out, *args, **kwargs):
-        pass
+    def _evaluate(self, x, out, *args, **kwargs):
+        res = []
+        for design in x:
+            res.append(FuncaoObjetivo(design))
+            
+        out["F"] = np.array(res)
 
 Problem = TesteProb()
