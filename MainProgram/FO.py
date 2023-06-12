@@ -10,7 +10,7 @@ def FuncaoObjetivo(diameter_pattern):
     B: float = 0.0
     Hmin: float = 10.0
 
-    d = epanet('./EPANETSources/Alperovits_Shamir.inp')
+    d = epanet('../EPANETSources/Alperovits_Shamir.inp')
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
 
@@ -27,7 +27,7 @@ def FuncaoObjetivo(diameter_pattern):
     diameter = []
     pipe_cost = []
 
-    finput = open('./MainProgram/Tabela_Custos.txt', 'rt')
+    finput = open('./Tabela_Custos.txt', 'rt')
 
     number_diameters = int(finput.readline().split()[0])
 
