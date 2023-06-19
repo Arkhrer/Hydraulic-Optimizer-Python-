@@ -26,7 +26,7 @@ class TesteProb(Problem):
 
     def _evaluate(self, x, out, *args, **kwargs):
         res = []
-        for design in x.astype(int):
+        for design in x:
             res.append(FuncaoObjetivo(design))
 
         out["F"] = np.array(res)

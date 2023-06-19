@@ -10,15 +10,15 @@ def FuncaoObjetivo(diameter_pattern):
     B: float = 0.0
     Hmin: float = 10.0
 
-    d = epanet('../EPANETSources/Alperovits_Shamir.inp')
+    d = epanet('../EPANETSources/Alperovits_Shamir.inp', loadfile = True)
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
 
 
     max1:int = sys.maxsize
 
-    Nnodes = d.getNodeCount()
     Nlinks = d.getLinkCount()
+    Nnodes = d.getNodeCount()
     Nres_tanks = d.getNodeTankReservoirCount()
     Njunctions = Nnodes - Nres_tanks
 
@@ -51,7 +51,7 @@ def FuncaoObjetivo(diameter_pattern):
         diameter.append(diameter_base[aux])
         d.api.ENsetlinkvalue(i + 1, d.ToolkitConstants.EN_DIAMETER, diameter[i])
         pipe_length = d.api.ENgetlinkvalue(i + 1, d.ToolkitConstants.EN_LENGTH)
-        pipe_cost.append(cost_base[aux]*pipe_length)
+        pipe_cost.append(cost_base[aux] * pipe_length)
         total_cost += pipe_cost[i]
         
     # Hydraulic Analysis
@@ -71,13 +71,13 @@ def FuncaoObjetivo(diameter_pattern):
             break
 
         junction_demand = d.api.ENgetnodevalue(i + 1, d.ToolkitConstants.EN_DEMAND)
-        aux1 = junction_demand * (junction_pressure-Hmin)
+        aux1 = junction_demand * (junction_pressure - Hmin)
         A += aux1
         aux2 = junction_demand * Hmin
         B += aux2
 
     if (Warning6 == False):
-        sum_RI = 100*(A / B)
+        sum_RI = 100 * (A / B)
 
     d.closeHydraulicAnalysis()
 

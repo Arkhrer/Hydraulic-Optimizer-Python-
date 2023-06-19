@@ -5,6 +5,7 @@ from pymoo.operators.mutation.pm import PM
 from pymoo.optimize import minimize
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.config import Config
+from pymoo.operators.sampling.rnd import IntegerRandomSampling
 
 dimensao_populacao: int
 
@@ -17,9 +18,9 @@ if __name__ == '__main__':
 
     print("\nRodando...")
 
-    algorithm = NSGA2(pop_size = 200, crossover = SBX(prob = 0.8), mutation = PM(prob = 0.050))
+    algorithm = NSGA2(pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
 
-    stop_criteria = ('n_gen', 2)
+    stop_criteria = ('n_gen', 1000)
 
     res = minimize(problem, algorithm, stop_criteria, seed = 1, verbose = False)
 
