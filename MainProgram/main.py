@@ -17,7 +17,7 @@ if __name__ == '__main__':
     print("\nRodando...")
 
     algorithm = NSGA2(pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
-    stop_criteria = ('n_gen', 2)
+    stop_criteria = ('n_gen', 1000)
     res = minimize(problem, algorithm, stop_criteria, seed = 1, verbose = False)
 
     print("\nTempo: ", (time.time() - start), " segundos")
