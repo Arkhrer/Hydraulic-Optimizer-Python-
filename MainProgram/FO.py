@@ -22,8 +22,6 @@ def FuncaoObjetivo(diameter_pattern):
     Nres_tanks = d.getNodeTankReservoirCount()
     Njunctions = Nnodes - Nres_tanks
 
-    print(Nlinks)
-
     diameter = []
     pipe_cost = []
 
@@ -80,8 +78,19 @@ def FuncaoObjetivo(diameter_pattern):
 
     if (Warning6 == False):
         sum_RI = 100*(A / B)
-    
-    print(sum_RI)
+
+    d.closeHydraulicAnalysis()
+
+    d.saveHydraulicsOutputReportingFile()
+
+    d.setReportFormatReset()
+    d.setReport('FILE Output.rpt')
+    d.setReport('STATUS YES')
+    d.setReport('SUMMARY YES')
+    d.setReport('MESSAGES YES')
+    d.writeReport()
+
+    d.unload()
 
     return total_cost, sum_RI
 #--------------------------------------------------

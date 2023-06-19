@@ -3,13 +3,16 @@ import FO
 import random
 from datetime import datetime
 
+
+Problem = TP.TesteProb()
+
 class TesteSol():
     def __init__(self):
         random.seed(datetime.now().timestamp())
         self.X = []
         v = []
-        for i in range(TP.Problem.NumberOfVariables):
-            self.X.append(random.randint(TP.Problem.Xmin[i], TP.Problem.Xmax[i]))
+        for i in range(Problem.NumberOfVariables):
+            self.X.append(random.randint(Problem.Xmin[i], Problem.Xmax[i]))
             v.append(self.X[i])
         
         fitness1: float
