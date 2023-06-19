@@ -10,7 +10,7 @@ def FuncaoObjetivo(diameter_pattern):
     B: float = 0.0
     Hmin: float = 10.0
 
-    d = epanet('../EPANETSources/Alperovits_Shamir.inp', loadfile = True)
+    d = epanet('./EPANET/Alperovits_Shamir.inp', loadfile = True)
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
 
