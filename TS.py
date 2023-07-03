@@ -24,6 +24,8 @@ class TesteSol():
         self.ObjectiveValues.append(fitness1)
         self.ObjectiveValues.append(fitness2)
 
+        return v
+
 if __name__ == '__main__':
     teste = TesteSol()
     print (teste.ObjectiveValues[0], " ", teste.ObjectiveValues[1])
