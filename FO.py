@@ -1,7 +1,7 @@
-# from TP import Problem
-import sys
-from epyt import epanet
+from customepanet import epanet
 
+# from main import mutex
+   
 def FuncaoObjetivo(diameter_pattern):
 
     total_cost:int = 0
@@ -11,7 +11,7 @@ def FuncaoObjetivo(diameter_pattern):
     Hmin: float = 10.0
 
     # Loading Network
-    d = epanet('./EPANET/Alperovits_Shamir.inp')
+    d = epanet('./EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=True)
 
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
@@ -55,24 +55,28 @@ def FuncaoObjetivo(diameter_pattern):
         
 
     # Hydraulic Analysis
+
+    # mutex.acquire()
+
     t = d.runHydraulicAnalysis()
+
+    # mutex.release()
 
     Warning6 = False
 
     for i in range(Njunctions):
 
-        junction_pressure = d.getNodePressure(i + Nres_tanks)
-        # junction_pressure = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_PRESSURE)
+        # junction_pressure = d.getNodePressure(i + Nres_tanks)
+        junction_pressure = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_PRESSURE)
 
         if (junction_pressure < Hmin):
             Warning6 = True
             total_cost = 10000000.0
             sum_RI = 0.0
-            # print('Warning 6')
             break
 
-        # junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
-        junction_demand = d.getNodeActualDemand(i + Nres_tanks)
+        junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
+        # junction_demand = d.getNodeActualDemand(i + Nres_tanks)
         aux1 = junction_demand * (junction_pressure - Hmin)
         A += aux1
         aux2 = junction_demand * Hmin

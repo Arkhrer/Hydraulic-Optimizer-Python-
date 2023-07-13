@@ -6,14 +6,36 @@ from pymoo.optimize import minimize
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.config import Config
 from pymoo.operators.sampling.rnd import IntegerRandomSampling
+#Parallelization
+from multiprocessing.pool import ThreadPool
+from pymoo.core.problem import StarmapParallelization
+import multiprocessing
+
+from threading import Lock
+
+# mutex = Lock()
+
 if __name__ == '__main__':
-    problem = TP.TesteProb()
+
+#Threads
+    # n_threads = 5
+    # pool = ThreadPool(n_threads)
+    # runner = StarmapParallelization(pool.starmap)
+
+#Processes
+#     n_proccess = 8
+#     pool = multiprocessing.Pool(n_proccess)
+#     runner = StarmapParallelization(pool.starmap)
+
+    # --------------------------------------------- #
 
     Config.warnings['not_compiled'] = False
 
     start = time.time()
 
     print("\nRodando...")
+    # problem = TP.TesteProb(elementwise_runner = runner)
+    problem = TP.TesteProb()
 
     algorithm = NSGA2(pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
     stop_criteria = ('n_gen', 1000)

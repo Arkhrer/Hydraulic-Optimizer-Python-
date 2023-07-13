@@ -1,6 +1,10 @@
 /__pycache__
-/en*
-/result*.txt
+en*
+/result*
 /.vscode
 /examples
-/Output.rpt
+*.rpt
+*_temp.*
+*_temp*.*
+/EPANET/*.txt
+TS.py
