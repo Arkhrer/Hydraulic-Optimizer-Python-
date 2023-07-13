@@ -3,11 +3,11 @@ from pymoo.util.ref_dirs import get_reference_directions
 from pymoo.core.problem import StarmapParallelization
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.algorithms.moo.nsga2 import NSGA2
+from pymoo.algorithms.moo.unsga3 import UNSGA3
 from pymoo.operators.mutation.pm import PM
 from pymoo.optimize import minimize
 from pymoo.config import Config
 from math import factorial
-from pymoo.problems import get_problem
 import time
 import TP
 #Parallelization
@@ -45,13 +45,13 @@ if __name__ == '__main__':
     
     n_partitions = 12
 
-    n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
+    # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
 
-    ref_dirs = get_reference_directions("energy", n_dimensions, n_points, seed = 1)
+    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions=n_partitions, seed = 1)
 
     problem = TP.TesteProb()
 
-    algorithm = NSGA2(pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
+    algorithm = UNSGA3(ref_dirs=ref_dirs, pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
     stop_criteria = ('n_gen', 1000)
     res = minimize(problem, algorithm, stop_criteria, seed = 1, verbose = False)
 
