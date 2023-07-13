@@ -1,14 +1,17 @@
-import TP
-import time
+from pymoo.operators.sampling.rnd import IntegerRandomSampling
+from pymoo.util.ref_dirs import get_reference_directions
+from pymoo.core.problem import StarmapParallelization
 from pymoo.operators.crossover.sbx import SBX
+from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.operators.mutation.pm import PM
 from pymoo.optimize import minimize
-from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.config import Config
-from pymoo.operators.sampling.rnd import IntegerRandomSampling
+from math import factorial
+from pymoo.problems import get_problem
+import time
+import TP
 #Parallelization
 from multiprocessing.pool import ThreadPool
-from pymoo.core.problem import StarmapParallelization
 import multiprocessing
 
 from threading import Lock
@@ -35,6 +38,17 @@ if __name__ == '__main__':
 
     print("\nRodando...")
     # problem = TP.TesteProb(elementwise_runner = runner)
+
+    n_objectives = 2
+
+    n_dimensions = n_objectives
+    
+    n_partitions = 12
+
+    n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
+
+    ref_dirs = get_reference_directions("energy", n_dimensions, n_points, seed = 1)
+
     problem = TP.TesteProb()
 
     algorithm = NSGA2(pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
