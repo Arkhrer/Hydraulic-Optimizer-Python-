@@ -1,10 +1,5 @@
-from pymoo.operators.sampling.rnd import IntegerRandomSampling
-from pymoo.util.ref_dirs import get_reference_directions
 from pymoo.core.problem import StarmapParallelization
-from pymoo.operators.crossover.sbx import SBX
-from pymoo.algorithms.moo.nsga2 import NSGA2
-from pymoo.algorithms.moo.unsga3 import UNSGA3
-from pymoo.operators.mutation.pm import PM
+from algorithm_selection import select_algorithm
 from pymoo.optimize import minimize
 from pymoo.config import Config
 from math import factorial
@@ -14,7 +9,7 @@ import TP
 from multiprocessing.pool import ThreadPool
 import multiprocessing
 
-from threading import Lock
+# from threading import Lock
 
 # mutex = Lock()
 
@@ -39,19 +34,10 @@ if __name__ == '__main__':
     print("\nRodando...")
     # problem = TP.TesteProb(elementwise_runner = runner)
 
-    n_objectives = 2
-
-    n_dimensions = n_objectives
-    
-    n_partitions = 12
-
-    # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
-
-    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions=n_partitions, seed = 1)
-
     problem = TP.TesteProb()
 
-    algorithm = UNSGA3(ref_dirs=ref_dirs, pop_size = 200, sampling = IntegerRandomSampling(), crossover = SBX(prob = 0.8, vtype = int), mutation = PM(prob = 0.050, vtype = int))
+    algorithm = select_algorithm("UNSGA3")
+
     stop_criteria = ('n_gen', 1000)
     res = minimize(problem, algorithm, stop_criteria, seed = 1, verbose = False)
 
