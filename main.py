@@ -1,13 +1,12 @@
-from pymoo.core.problem import StarmapParallelization
+# from pymoo.core.problem import StarmapParallelization
 from algorithm_selection import select_algorithm
 from pymoo.optimize import minimize
 from pymoo.config import Config
-from math import factorial
 import time
 import TP
 #Parallelization
-from multiprocessing.pool import ThreadPool
-import multiprocessing
+# from multiprocessing.pool import ThreadPool
+# import multiprocessing
 
 # from threading import Lock
 
