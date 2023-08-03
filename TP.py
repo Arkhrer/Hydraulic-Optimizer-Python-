@@ -14,10 +14,12 @@ NUMBEROFPIPES: final = 8
 # pool = ThreadPool(5)
 
 class TesteProb(Problem):
-    def __init__(self, **kwargs):
+    def __init__(self, counter = False, **kwargs):
         self.Xmin = []
         self.Xmax = []
         self.NumberOfVariables = NUMBEROFPIPES
+        if counter == True:
+            self.counter = 0
 
         for i in range(self.NumberOfVariables):
             self.Xmin.append(0)
@@ -31,6 +33,7 @@ class TesteProb(Problem):
         res = []
 
         for design in X:
+            self.counter = self.counter + 1
             res.append(FuncaoObjetivo(design))
 
         out["F"] = np.array(res)

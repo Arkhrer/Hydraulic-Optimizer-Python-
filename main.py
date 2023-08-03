@@ -33,7 +33,7 @@ if __name__ == '__main__':
     print("\nRodando...")
     # problem = TP.TesteProb(elementwise_runner = runner)
 
-    problem = TP.TesteProb()
+    problem = TP.TesteProb(counter = True)
 
     algorithm = select_algorithm("UNSGA3")
 
@@ -71,4 +71,5 @@ if __name__ == '__main__':
         out.write("\n")
         n = n + 1
 
+    out.write("\n Numero de chamadas: %d" %problem.counter)
     out.close()
