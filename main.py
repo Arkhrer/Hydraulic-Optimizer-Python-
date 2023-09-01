@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     algorithm = algorithm_selection.select_algorithm("RVEA")
 
-    stop_criteria = ('n_gen', 10)
+    stop_criteria = ('n_gen', 1000)
     res = minimize(problem, algorithm, stop_criteria, seed = int(time.time()), verbose = False)
 
     end = (time.time() - start)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     print("\nTempo: ", endmin, " minutos e ", end - (endmin * 60), " segundos")
 
-    out = open("resultadosnsga.txt", "w")
+    out = open("resultados.txt", "w")
 
     out.write("Populacoes\n")
     n = 1
