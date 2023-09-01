@@ -18,7 +18,8 @@ class TesteProb(Problem):
         self.Xmin = []
         self.Xmax = []
         self.NumberOfVariables = NUMBEROFPIPES
-        if counter == True:
+        self.allowcounter = counter
+        if self.allowcounter == True:
             self.counter = 0
 
         for i in range(self.NumberOfVariables):
@@ -33,7 +34,7 @@ class TesteProb(Problem):
         res = []
 
         for design in X:
-            if self.counter == True:
+            if self.allowcounter == True:
                 self.counter = self.counter + 1
             res.append(FuncaoObjetivo(design))
 
