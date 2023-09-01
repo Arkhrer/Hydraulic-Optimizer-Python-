@@ -14,19 +14,7 @@ from pymoo.algorithms.moo.rvea import RVEA
 from pymoo.operators.mutation.pm import PM
 # from math import factorial
 
-def select_algorithm(name):
-    #Parameters
-    population_size = 200
-    sampling = IntegerRandomSampling()
-    crossover = SBX(prob = 0.8, vtype = int)
-    mutation = PM(prob = 0.050, vtype = int)
-
-    n_objectives = 2
-    n_dimensions = n_objectives
-    # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
-    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = 12, seed = 1)
-
-    REF = {
+REF = {
         "AGEMOEA2": AGEMOEA2,
         "SMSEMOA": SMSEMOA,
         "AGEMOEA": AGEMOEA,
@@ -38,6 +26,18 @@ def select_algorithm(name):
         "CTAEA": CTAEA,
         "RVEA": RVEA
     }
+
+def select_algorithm(name):
+    #Parameters
+    population_size = 10
+    sampling = IntegerRandomSampling()
+    crossover = SBX(prob = 0.8, vtype = int)
+    mutation = PM(prob = 0.050, vtype = int)
+
+    n_objectives = 2
+    n_dimensions = n_objectives
+    # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
+    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = 12, seed = 1)
 
     if name not in REF:
         raise Exception("Reference directions factory not found.")
@@ -53,12 +53,12 @@ def select_algorithm(name):
         # Uncertain about parameters
         return REF[name](ref_dirs = ref_dirs, n_neighbors = 20, prob_neighbor_mating = 0.8, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "SMSEMOA":
-        return REF[name](pop_size = 200, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "AGEMOEA":
-        return REF[name](pop_size = 200, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "AGEMOEA2":
-        return REF[name](pop_size = 200, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "CTAEA":
         return REF[name](ref_dirs = ref_dirs, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "RVEA":
-        return REF[name](ref_dirs = ref_dirs, pop_size = 200, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](ref_dirs = ref_dirs, pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)

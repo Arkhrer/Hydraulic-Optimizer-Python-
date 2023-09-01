@@ -1,7 +1,8 @@
 # from pymoo.core.problem import StarmapParallelization
-from algorithm_selection import select_algorithm
+import random
 from pymoo.optimize import minimize
 from pymoo.config import Config
+import algorithm_selection
 import time
 import TP
 #Parallelization
@@ -36,10 +37,10 @@ if __name__ == '__main__':
     counter = True
     problem = TP.TesteProb(counter = counter)
 
-    algorithm = select_algorithm("UNSGA3")
+    algorithm = algorithm_selection.select_algorithm("RVEA")
 
-    stop_criteria = ('n_gen', 1000)
-    res = minimize(problem, algorithm, stop_criteria, seed = 1, verbose = False)
+    stop_criteria = ('n_gen', 10)
+    res = minimize(problem, algorithm, stop_criteria, seed = int(time.time()), verbose = False)
 
     end = (time.time() - start)
     endmin = int(end/60)

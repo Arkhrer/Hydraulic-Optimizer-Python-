@@ -33,7 +33,8 @@ class TesteProb(Problem):
         res = []
 
         for design in X:
-            self.counter = self.counter + 1
+            if self.counter == True:
+                self.counter = self.counter + 1
             res.append(FuncaoObjetivo(design))
 
         out["F"] = np.array(res)
