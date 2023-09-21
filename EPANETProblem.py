@@ -13,7 +13,7 @@ NUMBEROFPIPES: final = 8
 
 # pool = ThreadPool(5)
 
-class TesteProb(Problem):
+class EPANETProblem(Problem):
     def __init__(self, counter = False, **kwargs):
         self.Xmin = []
         self.Xmax = []

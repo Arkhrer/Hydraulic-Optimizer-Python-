@@ -4,7 +4,7 @@ from pymoo.optimize import minimize
 from pymoo.config import Config
 import algorithm_selection
 import time
-import TP
+from EPANETProblem import EPANETProblem
 #Parallelization
 # from multiprocessing.pool import ThreadPool
 # import multiprocessing
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # problem = TP.TesteProb(elementwise_runner = runner)
 
     counter = True
-    problem = TP.TesteProb(counter = counter)
+    problem = EPANETProblem(counter = counter)
 
     algorithm = algorithm_selection.select_algorithm("RVEA")
 
