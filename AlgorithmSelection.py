@@ -19,7 +19,7 @@ REF = {
         "SMSEMOA": SMSEMOA,
         "AGEMOEA": AGEMOEA,
         "UNSGA3": UNSGA3,
-        "RNSGA3": RNSGA3,
+        # "RNSGA3": RNSGA3,
         "NSGA2": NSGA2,
         "NSGA3": NSGA3,
         "MOEAD": MOEAD,
@@ -27,7 +27,7 @@ REF = {
         "RVEA": RVEA
     }
 
-def select_algorithm(name):
+def SelectAlgorithm(name):
     #Parameters
     population_size = 10
     sampling = IntegerRandomSampling()
@@ -37,14 +37,14 @@ def select_algorithm(name):
     n_objectives = 2
     n_dimensions = n_objectives
     # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
-    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = 12, seed = 1)
+    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = population_size - 1, seed = 1)
 
     if name not in REF:
         raise Exception("Reference directions factory not found.")
 
     if name == "NSGA3" or name == "UNSGA3":
         return REF[name](ref_dirs = ref_dirs, pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
-    elif name == "RNGSA3":
+    elif name == "RNSGA3":
         # Uncertain about parameters
         return REF[name](ref_dirs = ref_dirs, pop_per_ref_point = 20, mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "NSGA2":

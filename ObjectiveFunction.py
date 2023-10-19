@@ -1,8 +1,8 @@
-from customepanet import epanet
+from CustomEpanet import epanet
 
 # from main import mutex
    
-def FuncaoObjetivo(diameter_pattern):
+def ObjectiveFunction(diameter_pattern):
 
     total_cost:int = 0
     sum_RI: float = 0.0
@@ -102,4 +102,4 @@ def FuncaoObjetivo(diameter_pattern):
 #--------------------------------------------------
 
 if __name__ == '__main__':
-    FuncaoObjetivo()
+    ObjectiveFunction()

@@ -2,7 +2,7 @@ from pymoo.core.problem import Problem
 from pymoo.core.problem import ElementwiseProblem
 from typing import final
 from epyt import epanet
-from FO import FuncaoObjetivo
+from ObjectiveFunction import ObjectiveFunction
 import random
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
@@ -19,6 +19,7 @@ class EPANETProblem(Problem):
         self.Xmax = []
         self.NumberOfVariables = NUMBEROFPIPES
         self.allowcounter = counter
+        self.overallSuccesses = 0
         if self.allowcounter == True:
             self.counter = 0
 
@@ -36,10 +37,12 @@ class EPANETProblem(Problem):
         for design in X:
             if self.allowcounter == True:
                 self.counter = self.counter + 1
-            res.append(FuncaoObjetivo(design))
+            res.append(ObjectiveFunction(design))
+            if (res[len(res) - 1][0] <= 430000):
+                self.overallSuccesses += 1
 
         out["F"] = np.array(res)
 
     # Multithread solution
 
-        # out["F"] = FuncaoObjetivo(X)
+        # out["F"] = ObjectiveFunction(X)
