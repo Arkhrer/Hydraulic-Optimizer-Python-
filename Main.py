@@ -1,10 +1,14 @@
 # from pymoo.core.problem import StarmapParallelization
-import random
+from pymoo.operators.sampling.rnd import IntegerRandomSampling
+from pymoo.util.ref_dirs import get_reference_directions
+from pymoo.operators.crossover.sbx import SBX
+from pymoo.operators.mutation.pm import PM
+from EPANETProblem import EPANETProblem
 from pymoo.optimize import minimize
 from pymoo.config import Config
 import AlgorithmSelection
+import random
 import time
-from EPANETProblem import EPANETProblem
 import xlwt
 #Parallelization
 # from multiprocessing.pool import ThreadPool
@@ -39,12 +43,42 @@ if __name__ == '__main__':
 
     stop_criteria = ('n_gen', 100)
 
+    #Parameters
+
     seed = int(time.time())
+
+    population_size = 10
+    sampling = IntegerRandomSampling()
+    crossover_chance = 0.8
+    crossover = SBX(prob = crossover_chance, vtype = int)
+    mutation_chance = 0.05
+    mutation = PM(prob = mutation_chance, vtype = int)
+
+    n_objectives = 2
+    n_dimensions = n_objectives
+    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = population_size - 1, seed = seed)
+
 
     print("Running...")
 
     # Workbook for spreadsheet
     wb = xlwt.Workbook()
+
+    ws = wb.add_sheet("General data")
+    ws.write(0, 0, "Population Size")
+    ws.write(0, 1, population_size)
+
+    ws.write(1, 0, "Seed")
+    ws.write(1, 1, seed)
+
+    ws.write(2, 0, "Crossover probability")
+    ws.write(2, 1, crossover_chance)
+
+    ws.write(3, 0, "Mutation probability")
+    ws.write(3, 1, mutation_chance)
+
+    #ws.write(4, 0, "Reference directions")
+    #ws.write(4, 1, ref_dirs)
 
     if(allOfThem):
 
@@ -53,7 +87,8 @@ if __name__ == '__main__':
 
             print(currentAlgorithm)
 
-            algorithm = AlgorithmSelection.SelectAlgorithm(currentAlgorithm)
+            algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = population_size, samp = sampling, co = crossover, mt = mutation, no = n_objectives, nd = n_dimensions, rd = ref_dirs)
+    
 
             currentAlgoStart = time.time()
 
@@ -107,12 +142,6 @@ if __name__ == '__main__':
                 ws.write(n, 0,"Number of calls")
                 n += 1
                 ws.write(n, 0, problem.counter)
-
-            
-            n += 1
-            ws.write(n, 0,"Seed")
-            n += 1
-            ws.write(n, 0, seed)
 
             n += 1
             currentEndMin = int(currentAlgoEnd/60)

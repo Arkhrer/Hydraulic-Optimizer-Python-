@@ -12,6 +12,7 @@ from pymoo.algorithms.moo.nsga3 import NSGA3
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.algorithms.moo.rvea import RVEA
 from pymoo.operators.mutation.pm import PM
+import xlwt
 # from math import factorial
 
 REF = {
@@ -27,17 +28,17 @@ REF = {
         "RVEA": RVEA
     }
 
-def SelectAlgorithm(name):
+def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SBX(prob = 0.8, vtype = int), mt = PM(prob = 0.050, vtype = int), no = 2, nd = 2,  rd = get_reference_directions("das-dennis", 2, n_partitions = 10 - 1, seed = 1)):
     #Parameters
-    population_size = 10
-    sampling = IntegerRandomSampling()
-    crossover = SBX(prob = 0.8, vtype = int)
-    mutation = PM(prob = 0.050, vtype = int)
+    population_size = pop_size
+    sampling = samp
+    crossover = co
+    mutation = mt
 
-    n_objectives = 2
-    n_dimensions = n_objectives
+    n_objectives = no
+    n_dimensions = nd
     # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
-    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = population_size - 1, seed = 1)
+    ref_dirs = rd
 
     if name not in REF:
         raise Exception("Reference directions factory not found.")

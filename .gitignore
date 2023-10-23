@@ -9,3 +9,4 @@ en*
 /EPANET/*.txt
 TS.py
 .venv
+.~lock.*.*
