@@ -8,7 +8,7 @@ def ObjectiveFunction(diameter_pattern):
     sum_RI: float = 0.0
     A: float = 0.0
     B: float = 0.0
-    Hmin: float = 10.0
+    Hmin: float = 30.0
 
     # Loading Network
     d = epanet('./EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=True)
