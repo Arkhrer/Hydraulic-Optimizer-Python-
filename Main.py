@@ -17,8 +17,9 @@ import os
 import Loops
 
 #Parallelization
-# from multiprocessing.pool import ThreadPool
+from multiprocessing.pool import ThreadPool
 # import multiprocessing
+from pymoo.core.problem import StarmapParallelization
 
 # from threading import Lock
 
@@ -58,14 +59,13 @@ def ExecuteAlgorithms(**kwargs):
     global stop_criteria
 
 #Threads
-    # n_threads = 5
-    # pool = ThreadPool(n_threads)
-    # runner = StarmapParallelization(pool.starmap)
-
+    n_threads = 10
+    pool = ThreadPool(n_threads)
 # #Processes
-    # n_proccess = 8
+    # n_proccess = 10
     # pool = multiprocessing.Pool(n_proccess)
-    # runner = StarmapParallelization(pool.starmap)
+    
+    runner = StarmapParallelization(pool.starmap)
 
     # --------------------------------------------- #
     
@@ -85,7 +85,7 @@ def ExecuteAlgorithms(**kwargs):
     if(allOfThem):
         for currentAlgorithm in AlgorithmSelection.REF:
 
-            problem = EPANETProblem(counter = counter)
+            problem = EPANETProblem(counter = counter, elementwise_runner = runner)
 
             print(currentAlgorithm)
 
@@ -148,7 +148,7 @@ def ExecuteAlgorithms(**kwargs):
 
     else:
         currentAlgorithm = selectedAlgorithm
-        problem = EPANETProblem(counter = counter)
+        problem = EPANETProblem(counter = counter, elementwise_runner = runner)
 
         print(currentAlgorithm)
 
@@ -208,6 +208,8 @@ def ExecuteAlgorithms(**kwargs):
         del resultsList
         del res
         del currentWriter
+
+    pool.close()
 
 if __name__ == '__main__':
 
