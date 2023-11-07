@@ -1,8 +1,17 @@
 from CustomEpanet import epanet
+import os
 
 # from main import mutex
    
-def ObjectiveFunction(diameter_pattern):
+def ObjectiveFunction():
+    
+    splitDpInput = os.getenv("DIAMETER_PATTERN").split(',')
+    
+    diameter_pattern=[]
+    
+    for i in range(len(splitDpInput)):
+        diameter_pattern.append(int(splitDpInput[i]))
+    
 
     total_cost:int = 0
     sum_RI: float = 0.0
@@ -11,7 +20,7 @@ def ObjectiveFunction(diameter_pattern):
     Hmin: float = 30.0
 
     # Loading Network
-    d = epanet('./EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=True)
+    d = epanet('./app/EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=True)
 
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
@@ -24,7 +33,7 @@ def ObjectiveFunction(diameter_pattern):
     diameter = []
     pipe_cost = []
 
-    finput = open('./Tabela_Custos.txt', 'rt')
+    finput = open('./app/Tabela_Custos.txt', 'rt')
 
     number_diameters = int(finput.readline().split()[0])
 
@@ -98,7 +107,7 @@ def ObjectiveFunction(diameter_pattern):
 
     d.unload()
 
-    return total_cost, (-1)*sum_RI
+    print(f"{total_cost} {(-1)*sum_RI}")
 #--------------------------------------------------
 
 if __name__ == '__main__':

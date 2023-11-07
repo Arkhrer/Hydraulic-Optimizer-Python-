@@ -2,12 +2,13 @@ from pymoo.core.problem import Problem
 from pymoo.core.problem import ElementwiseProblem
 from typing import final
 from epyt import epanet
-from ObjectiveFunction import ObjectiveFunction
 import random
 from datetime import datetime
 from multiprocessing.pool import ThreadPool
 import threading
 import numpy as np
+
+import docker
 
 NUMBEROFPIPES: final = 8
 
@@ -37,7 +38,23 @@ class EPANETProblem(Problem):
         for design in X:
             if self.allowcounter == True:
                 self.counter = self.counter + 1
-            res.append(ObjectiveFunction(design))
+                
+                
+            client = docker.from_env()
+            diameter_pattern:str = "" + str(design[0])
+            for i in range(1, len(design)):
+                diameter_pattern+="," + str(design[i])
+                
+            result = str(client.containers.run("epanet-docker", "app/ObjectiveFunction.py", environment = [f"DIAMETER_PATTERN={diameter_pattern}"]), encoding = "utf-8").split()
+            
+            print(self.counter)
+            
+            currentRes = [float(result[0]), float(result[1])]
+            # currentRes.append(float(result[0]))
+            # currentRes.append(float(result[1]))
+            
+            res.append(currentRes)
+            
             if (res[len(res) - 1][0] <= 430000):
                 self.overallSuccesses += 1
 

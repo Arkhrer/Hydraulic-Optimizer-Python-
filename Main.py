@@ -15,6 +15,7 @@ import xlwt
 import csv
 import os
 import Loops
+
 #Parallelization
 # from multiprocessing.pool import ThreadPool
 # import multiprocessing
@@ -55,6 +56,18 @@ def ExecuteAlgorithms(**kwargs):
     global selectedAlgorithm
     global generations
     global stop_criteria
+
+#Threads
+    # n_threads = 5
+    # pool = ThreadPool(n_threads)
+    # runner = StarmapParallelization(pool.starmap)
+
+# #Processes
+    # n_proccess = 8
+    # pool = multiprocessing.Pool(n_proccess)
+    # runner = StarmapParallelization(pool.starmap)
+
+    # --------------------------------------------- #
     
     seed = kwargs["seed"]
     mutationRate = kwargs["mutationRate"]
@@ -197,18 +210,6 @@ def ExecuteAlgorithms(**kwargs):
         del currentWriter
 
 if __name__ == '__main__':
-
-#Threads
-    # n_threads = 5
-    # pool = ThreadPool(n_threads)
-    # runner = StarmapParallelization(pool.starmap)
-
-#Processes
-#     n_proccess = 8
-#     pool = multiprocessing.Pool(n_proccess)
-#     runner = StarmapParallelization(pool.starmap)
-
-    # --------------------------------------------- #
 
     Config.warnings['not_compiled'] = False
 
