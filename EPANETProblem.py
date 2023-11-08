@@ -65,7 +65,7 @@ class EPANETProblem(ElementwiseProblem):
         for i in range(1, len(X)):
             diameter_pattern+="," + str(X[i])
             
-        result = str(client.containers.run("epanet-docker", "app/ObjectiveFunction.py", environment = [f"DIAMETER_PATTERN={diameter_pattern}"]), encoding = "utf-8").split()
+        result = str(client.containers.run("epanet-docker", "app/ObjectiveFunction.py", environment = [f"DIAMETER_PATTERN={diameter_pattern}"], auto_remove = True), encoding = "utf-8").split()
         
                 
         currentRes = [float(result[0]), float(result[1])]

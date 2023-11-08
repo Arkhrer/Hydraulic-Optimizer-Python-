@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 import time
-import xlwt
 import csv
 import os
 import Loops
+import docker
 
 #Parallelization
 from multiprocessing.pool import ThreadPool
@@ -59,10 +59,10 @@ def ExecuteAlgorithms(**kwargs):
     global stop_criteria
 
 #Threads
-    n_threads = 10
+    n_threads = 100
     pool = ThreadPool(n_threads)
 # #Processes
-    # n_proccess = 10
+    # n_proccess = 100
     # pool = multiprocessing.Pool(n_proccess)
     
     runner = StarmapParallelization(pool.starmap)
@@ -218,6 +218,9 @@ if __name__ == '__main__':
     start = time.time()
 
     print("Running...")
+    
+    client = docker.from_env()
+    client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
 
     Loops.SeedLoop(Loops.PopulationLoop, Loops.MutationRateLoop, Loops.CrossoverRateLoop, ExecuteAlgorithms)
 
