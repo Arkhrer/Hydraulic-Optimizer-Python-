@@ -1,5 +1,7 @@
 import time
 
+from Main import saveState
+
 seedRounds = 30
 populationRounds = 3
 mutationRateRounds = 3
@@ -7,8 +9,13 @@ crossoverRateRounds = 3
 
 def SeedLoop(NextFunction, *args, **kwargs):
     for i in range(seedRounds):
-        seed = int(time.time())
-        NextFunction(*args, **kwargs, seed = seed)
+        if(saveState):
+            f = open(".savestate",'r')
+            content = f.readlines()
+            seed = int(content[5])
+        else:
+            seed = int(time.time())
+        NextFunction(*args, **kwargs, seed = seed, seedRound = i)
 
 def PopulationLoop(NextFunction, *args, **kwargs):
     populationSize = 1

@@ -11,3 +11,4 @@ TS.py
 .venv
 .~lock.*.*
 venv
+.savestate
