@@ -86,13 +86,13 @@ def ExecuteAlgorithms(**kwargs):
         f.close()
 
 #Threads
-    n_threads = 100
-    pool = ThreadPool(n_threads)
+    # n_threads = 100
+    # pool = ThreadPool(n_threads)
 # #Processes
     # n_proccess = 100
     # pool = multiprocessing.Pool(n_proccess)
     
-    runner = StarmapParallelization(pool.starmap)
+    # runner = StarmapParallelization(pool.starmap)
 
     # --------------------------------------------- #
 
@@ -115,7 +115,8 @@ def ExecuteAlgorithms(**kwargs):
                     f.close()
                     saveState = False
             else:
-                problem = EPANETProblem(counter = counter, elementwise_runner = runner)
+                # problem = EPANETProblem(counter = counter, elementwise_runner = runner)
+                problem = EPANETProblem(counter = counter)
 
                 print(currentAlgorithm)
 
@@ -189,7 +190,8 @@ def ExecuteAlgorithms(**kwargs):
 
     else:
         currentAlgorithm = selectedAlgorithm
-        problem = EPANETProblem(counter = counter, elementwise_runner = runner)
+        # problem = EPANETProblem(counter = counter, elementwise_runner = runner)
+        problem = EPANETProblem(counter = counter)
 
         print(currentAlgorithm)
 
@@ -260,7 +262,7 @@ def ExecuteAlgorithms(**kwargs):
         f.write(f"{currentAlgorithm}\n")
         f.close()
 
-    pool.close()
+    # pool.close()
 
 if __name__ == '__main__':
 
