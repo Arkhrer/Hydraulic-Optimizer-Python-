@@ -3,14 +3,14 @@ import os
 
 # from main import mutex
    
-def ObjectiveFunction():
+def ObjectiveFunction(diameter_pattern):
     
-    splitDpInput = os.getenv("DIAMETER_PATTERN").split(',')
+    # splitDpInput = os.getenv("DIAMETER_PATTERN").split(',')
     
-    diameter_pattern=[]
+    # diameter_pattern=[]
     
-    for i in range(len(splitDpInput)):
-        diameter_pattern.append(int(splitDpInput[i]))
+    # for i in range(len(splitDpInput)):
+    #     diameter_pattern.append(int(splitDpInput[i]))
     
 
     total_cost:int = 0
