@@ -12,3 +12,4 @@ TS.py
 .~lock.*.*
 venv
 .savestate
+DataAnalysis/out

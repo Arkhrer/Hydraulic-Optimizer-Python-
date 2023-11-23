@@ -5,29 +5,25 @@ from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.pm import PM
 from EPANETProblem import EPANETProblem
 from pymoo.optimize import minimize
+import matplotlib.pyplot as plt
 from pymoo.config import Config
 import AlgorithmSelection
-import matplotlib.pyplot as plt
 import numpy as np
+import docker
 import random
+import Loops
 import time
 import csv
 import os
-import Loops
-import docker
 
 #Parallelization
 from multiprocessing.pool import ThreadPool
 # import multiprocessing
 from pymoo.core.problem import StarmapParallelization
 
-# from threading import Lock
-
-# mutex = Lock()
-
-diametersLabels = []
-for it in range(8):
-    diametersLabels += [f"Diameter {it + 1}"]
+# diametersLabels = []
+# for it in range(8):
+#     diametersLabels += [f"Diameter {it + 1}"]
 
 allOfThem: bool = True
 selectedAlgorithm: str = "NSGA3"
@@ -37,7 +33,7 @@ counter: bool = True
 #Parameters
 
 sampling = IntegerRandomSampling()
-generations = 10
+generations = 1
 stop_criteria = ('n_gen', generations)
 
 n_objectives = 2
@@ -46,6 +42,129 @@ n_dimensions = n_objectives
 currentRound = 0
 
 saveState:bool = False
+
+def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound):
+    global counter
+    global n_objectives
+    global n_dimensions
+    global sampling
+    # global diametersLabels
+    global generations
+    global stop_criteria
+    
+    problem = EPANETProblem(counter = counter, elementwise_runner = runner)
+
+    print(currentAlgorithm)
+
+    algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = populationSize, samp = sampling, co = crossover, mt = mutation, no = n_objectives, nd = n_dimensions, rd = ref_dirs)
+
+    currentAlgoStart = time.time()
+
+    res = minimize(problem, algorithm, stop_criteria, seed = seed, verbose = False)
+
+    currentAlgoEnd = (time.time() - start)
+
+    # if not os.path.exists(f"results/{populationSize}_{crossoverRate}_{mutationRate}"): 
+    #     os.makedirs(f"results/{populationSize}_{crossoverRate}_{mutationRate}")
+
+    if not os.path.exists(f"results"): 
+        os.makedirs(f"results")
+
+    # currentWriter = csv.writer(open(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}.csv", 'w', encoding = "utf-8"))
+    currentWriter = csv.writer(open(f"results/{currentAlgorithm}.csv", 'a', encoding = "utf-8"))
+    
+    # Labels
+    
+    labelsRow = np.concatenate(("Current algorithm", "Seed"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Generations"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Population size"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Crossover chance"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Mutation chance"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Successes"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Overall successes"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Quality(success rate)"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Overall quality(success rate)"), axis = None)
+    
+    if (counter == True):
+        labelsRow = np.concatenate((labelsRow, "Objective Function Calls"), axis = None)
+        labelsRow = np.concatenate((labelsRow, "Eficiency"), axis = None)
+        
+    labelsRow = np.concatenate((labelsRow, "Minutes"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Seconds"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Minimmum cost"), axis = None)
+    labelsRow = np.concatenate((labelsRow, "Maximum RI"), axis = None)
+    
+    for i in range(len(res.X)):
+        diametersLabels = []
+        for it in range(8):
+            diametersLabels += [f"Diameter {i} . {it + 1}"]
+        labelsRow = np.concatenate((labelsRow, diametersLabels), axis = None)
+        labelsRow = np.concatenate((labelsRow, ["Cost", "SumRI"]), axis = None)
+        labelsRow = np.concatenate((labelsRow, "Success"), axis = None)
+    
+    currentWriter.writerow(labelsRow)
+    
+    #Values
+    
+    valuesRow = np.concatenate((currentAlgorithm, str(seed)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(generations)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(populationSize)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(crossoverRate)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(mutationRate)), axis = None)
+    
+    successes = 0
+    for line in res.F:
+        if (line[0] <= 430000):
+            successes += 1
+            
+    valuesRow = np.concatenate((valuesRow, str(successes)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(problem.overallSuccesses)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(successes/len(res.F))), axis = None)
+    valuesRow = np.concatenate((valuesRow, str((problem.overallSuccesses)/(problem.counter))), axis = None)
+    if (counter == True):
+        valuesRow = np.concatenate((valuesRow, str(problem.counter)), axis = None)
+        valuesRow = np.concatenate((valuesRow, str((successes/len(res.F))/(problem.counter))), axis = None)
+    currentEndMin = int(currentAlgoEnd/60)
+    valuesRow = np.concatenate((valuesRow, str(currentEndMin)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(currentAlgoEnd - (currentEndMin * 60))), axis = None)
+    
+    minimumCost:int = 1000000000
+    maximumRI:int = 0
+    for line in res.F:
+        if (line[0] < minimumCost):
+            minimumCost = line[0]
+        if ((line[1])*(-1) > maximumRI):
+            maximumRI = (line[1])*(-1)
+    
+    valuesRow = np.concatenate((valuesRow, str(minimumCost)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(maximumRI)), axis = None)
+    
+    resultsList = list(zip(res.X, res.F))
+    for element in resultsList:
+        element[1][1] = element[1][1]*(-1)
+        row = np.concatenate((element[0], element[1]), axis = None)
+        if(element[1][0] <= 430000):
+            row = np.concatenate((row, ["1"]), axis = None)
+        else:
+            row = np.concatenate((row, ["0"]), axis = None)
+        valuesRow = np.concatenate((valuesRow, row), axis = None)
+    
+    currentWriter.writerow(valuesRow)
+
+    del problem
+    del algorithm
+    del resultsList
+    del res
+    del currentWriter
+
+    f = open(".savestate", 'w')
+    f.write(f"{seedRound}\n")
+    f.write(f"{mutationRate}\n")
+    f.write(f"{crossoverRate}\n")
+    f.write(f"{populationSize}\n")
+    f.write(f"{currentAlgorithm}\n")
+    f.write(f"{seed}\n")
+    f.close()
 
 def ExecuteAlgorithms(**kwargs):
     global currentRound
@@ -85,10 +204,10 @@ def ExecuteAlgorithms(**kwargs):
             return
         f.close()
 
-#Threads
+    #Threads
     n_threads = 100
     pool = ThreadPool(n_threads)
-# #Processes
+    #Processes
     # n_proccess = 100
     # pool = multiprocessing.Pool(n_proccess)
     
@@ -115,155 +234,16 @@ def ExecuteAlgorithms(**kwargs):
                     f.close()
                     saveState = False
             else:
-                problem = EPANETProblem(counter = counter, elementwise_runner = runner)
-
-                print(currentAlgorithm)
-
-                algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = populationSize, samp = sampling, co = crossover, mt = mutation, no = n_objectives, nd = n_dimensions, rd = ref_dirs)
-        
-                currentAlgoStart = time.time()
-
-                res = minimize(problem, algorithm, stop_criteria, seed = seed, verbose = False)
-
-                currentAlgoEnd = (time.time() - start)
-
-                if not os.path.exists(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}"): 
-                    os.makedirs(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}")
-
-                currentWriter = csv.writer(open(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}/{seed}.csv", 'w', encoding = "utf-8"))
-                currentWriter.writerow([currentAlgorithm])
-                currentWriter.writerow(["Seed", seed])
-                currentWriter.writerow(["Generations", generations])
-                currentWriter.writerow(["Population size", populationSize])
-                currentWriter.writerow(["Crossover chance", crossoverRate])
-                currentWriter.writerow(["Mutation chance", mutationRate])
-                successes = 0
-                for line in res.F:
-                    if (line[0] <= 430000):
-                        successes += 1
-                currentWriter.writerow(["Successes", successes])
-                currentWriter.writerow(["Overall successes", problem.overallSuccesses])
-                currentWriter.writerow(["Quality(success rate)", successes/len(res.F)])
-                currentWriter.writerow(["Overall quality(success rate)", (problem.overallSuccesses)/(problem.counter)])
-                if (counter == True):
-                    currentWriter.writerow(["Objective Function Calls", problem.counter])
-                    currentWriter.writerow(["Eficiency", (successes/len(res.F))/(problem.counter)])
-                currentEndMin = int(currentAlgoEnd/60)
-                currentWriter.writerow(["Minutes", currentEndMin, "Seconds", currentAlgoEnd - (currentEndMin * 60)])
-
-                minimumCost:int = 1000000000
-                maximumRI:int = 0
-                for line in res.F:
-                    if (line[0] < minimumCost):
-                        minimumCost = line[0]
-                    if ((line[1])*(-1) > maximumRI):
-                        maximumRI = (line[1])*(-1)
-                currentWriter.writerow(["Minimmum cost", minimumCost])
-                currentWriter.writerow(["Maximum RI", maximumRI])
-
-                currentWriter.writerow(diametersLabels + ["Cost", "SumRI"])
-                resultsList = list(zip(res.X, res.F))
-                for element in resultsList:
-                    element[1][1] = element[1][1]*(-1)
-                    row = np.concatenate((element[0], element[1]), axis = None)
-                    if(element[1][0] <= 430000):
-                        row = np.concatenate((row, ["1"]), axis = None)
-                    else:
-                        row = np.concatenate((row, ["0"]), axis = None)
-                    currentWriter.writerow(row)
-            
-                del problem
-                del algorithm
-                del resultsList
-                del res
-                del currentWriter
-            
-                f = open(".savestate", 'w')
-                f.write(f"{seedRound}\n")
-                f.write(f"{mutationRate}\n")
-                f.write(f"{crossoverRate}\n")
-                f.write(f"{populationSize}\n")
-                f.write(f"{currentAlgorithm}\n")
-                f.write(f"{seed}\n")
-                f.close()
+                SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound)
 
     else:
         currentAlgorithm = selectedAlgorithm
-        problem = EPANETProblem(counter = counter, elementwise_runner = runner)
-
-        print(currentAlgorithm)
-
-        algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = populationSize, samp = sampling, co = crossover, mt = mutation, no = n_objectives, nd = n_dimensions, rd = ref_dirs)
-
-        currentAlgoStart = time.time()
-
-        res = minimize(problem, algorithm, stop_criteria, seed = seed, verbose = False)
-
-        currentAlgoEnd = (time.time() - start)
-
-        if not os.path.exists(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}"): 
-            os.makedirs(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}")
-
-        currentWriter = csv.writer(open(f"results/{populationSize}_{crossoverRate}_{mutationRate}/{currentAlgorithm}/{seed}.csv", 'w', encoding = "utf-8"))
-        currentWriter.writerow([currentAlgorithm])
-        currentWriter.writerow(["Seed", seed])
-        currentWriter.writerow(["Generations", generations])
-        currentWriter.writerow(["Population size", populationSize])
-        currentWriter.writerow(["Crossover chance", crossoverRate])
-        currentWriter.writerow(["Mutation chance", mutationRate])
-        successes = 0
-        for line in res.F:
-            if (line[0] <= 430000):
-                successes += 1
-        currentWriter.writerow(["Successes", successes])
-        currentWriter.writerow(["Overall successes", problem.overallSuccesses])
-        currentWriter.writerow(["Quality(success rate)", successes/len(res.F)])
-        currentWriter.writerow(["Overall quality(success rate)", (problem.overallSuccesses)/(problem.counter)])
-        if (counter == True):
-            currentWriter.writerow(["Objective Function Calls", problem.counter])
-            currentWriter.writerow(["Eficiency", (successes/len(res.F))/(problem.counter)])
-        currentEndMin = int(currentAlgoEnd/60)
-        currentWriter.writerow(["Minutes", currentEndMin, "Seconds", currentAlgoEnd - (currentEndMin * 60)])
-
-        minimumCost:int = 1000000000
-        maximumRI:int = 0
-        for line in res.F:
-            if (line[0] < minimumCost):
-                minimumCost = line[0]
-            if ((line[1])*(-1) > maximumRI):
-                maximumRI = (line[1])*(-1)
-        currentWriter.writerow(["Minimmum cost", minimumCost])
-        currentWriter.writerow(["Maximum RI", maximumRI])
-
-        currentWriter.writerow(diametersLabels + ["Cost", "SumRI"])
-        resultsList = list(zip(res.X, res.F))
-        for element in resultsList:
-            element[1][1] = element[1][1]*(-1)
-            row = np.concatenate((element[0], element[1]), axis = None)
-            if(element[1][0] <= 430000):
-                row = np.concatenate((row, ["1"]), axis = None)
-            else:
-                row = np.concatenate((row, ["0"]), axis = None)
-            currentWriter.writerow(row)
-    
-        del problem
-        del algorithm
-        del resultsList
-        del res
-        del currentWriter
         
-        f = open(".savestate", 'w')
-        f.write(f"{seedRound}\n")
-        f.write(f"{mutationRate}\n")
-        f.write(f"{crossoverRate}\n")
-        f.write(f"{populationSize}\n")
-        f.write(f"{currentAlgorithm}\n")
-        f.close()
+        SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound)
 
     pool.close()
 
 if __name__ == '__main__':
-
     Config.warnings['not_compiled'] = False
 
     start = time.time()
@@ -272,7 +252,6 @@ if __name__ == '__main__':
     
     client = docker.from_env()
     client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
-    
     
     saveState = os.path.isfile(".savestate")
 
