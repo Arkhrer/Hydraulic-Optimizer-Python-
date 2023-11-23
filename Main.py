@@ -33,7 +33,7 @@ counter: bool = True
 #Parameters
 
 sampling = IntegerRandomSampling()
-generations = 1
+generations = 100
 stop_criteria = ('n_gen', generations)
 
 n_objectives = 2
