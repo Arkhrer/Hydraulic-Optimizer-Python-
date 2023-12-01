@@ -25,15 +25,15 @@ from pymoo.core.problem import StarmapParallelization
 # for it in range(8):
 #     diametersLabels += [f"Diameter {it + 1}"]
 
-allOfThem: bool = True
-selectedAlgorithm: str = "NSGA3"
+allOfThem: bool = False
+selectedAlgorithm: str = "RNSGA3"
 
 counter: bool = True
 
 #Parameters
 
 sampling = IntegerRandomSampling()
-generations = 100
+generations = 2
 stop_criteria = ('n_gen', generations)
 
 n_objectives = 2
