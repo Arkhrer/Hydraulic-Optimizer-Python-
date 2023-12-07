@@ -268,6 +268,7 @@ def ExecuteAlgorithms(**kwargs):
     # pool.close()
 
 if __name__ == '__main__':
+    gc.start()
 
     Config.warnings['not_compiled'] = False
 
