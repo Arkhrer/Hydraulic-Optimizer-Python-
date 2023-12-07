@@ -108,7 +108,7 @@ def ObjectiveFunction(diameter_pattern):
     d.unload()
 
     # print(f"{total_cost} {(-1)*sum_RI}")
-    return total_cost, sum_RI
+    return total_cost, (-1)*sum_RI
 #--------------------------------------------------
 
 if __name__ == '__main__':
