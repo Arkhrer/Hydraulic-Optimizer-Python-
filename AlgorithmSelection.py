@@ -19,7 +19,7 @@ REF = {
         #"SMSEMOA": SMSEMOA,
         #"AGEMOEA": AGEMOEA,
         "UNSGA3": UNSGA3,
-        #"RNSGA3": RNSGA3,
+        "RNSGA3": RNSGA3,
         "NSGA2": NSGA2,
         "NSGA3": NSGA3,
         "MOEAD": MOEAD,
@@ -38,6 +38,7 @@ def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SB
     n_dimensions = nd
     # n_points = factorial(n_objectives + n_partitions - 1)/(factorial(n_objectives + n_partitions - 1)*factorial(n_partitions))
     ref_dirs = rd
+    ref_points = np.array([[0.1, 0.5], [0.7, 0.3], [0.5, 0.5]])
 
     if name not in REF:
         raise Exception("Reference directions factory not found.")
@@ -46,7 +47,7 @@ def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SB
         return REF[name](ref_dirs = ref_dirs, pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "RNSGA3":
         # Uncertain about parameters
-        return REF[name](ref_dirs = ref_dirs, pop_per_ref_point = 20, mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](ref_points = ref_points, pop_per_ref_point = 20, mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "NSGA2":
         return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "MOEAD":
