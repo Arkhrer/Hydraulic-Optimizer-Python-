@@ -12,6 +12,7 @@ from pymoo.algorithms.moo.nsga3 import NSGA3
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.algorithms.moo.rvea import RVEA
 from pymoo.operators.mutation.pm import PM
+import numpy as np
 # from math import factorial
 
 REF = {
