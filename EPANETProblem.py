@@ -52,8 +52,6 @@ class EPANETProblem(Problem):
             # currentRes = [float(result[0]), float(result[1])]
             
             # res.append(currentRes)  
-                      
-            print(self.counter)
             
             if (res[len(res) - 1][0] <= 430000):
                 self.overallSuccesses += 1
