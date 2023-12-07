@@ -15,6 +15,7 @@ import csv
 import os
 import Loops
 import docker
+import gc
 
 #Parallelization
 from multiprocessing.pool import ThreadPool
@@ -261,6 +262,8 @@ def ExecuteAlgorithms(**kwargs):
         f.write(f"{populationSize}\n")
         f.write(f"{currentAlgorithm}\n")
         f.close()
+    
+    gc.collect()
 
     # pool.close()
 
