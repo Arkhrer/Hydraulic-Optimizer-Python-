@@ -276,8 +276,8 @@ if __name__ == '__main__':
 
     print("Running...")
     
-    client = docker.from_env()
-    client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
+    # client = docker.from_env()
+    # client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
     
     
     saveState = os.path.isfile(".savestate")
