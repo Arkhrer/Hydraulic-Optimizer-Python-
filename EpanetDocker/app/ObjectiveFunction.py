@@ -1,11 +1,10 @@
 from CustomEpanet import epanet
 import os
+import gc
 
 # from main import mutex
    
-def ObjectiveFunction():
-    
-    splitDpInput = os.getenv("DIAMETER_PATTERN").split(',')
+def ObjectiveFunction(splitDpInput):
     
     diameter_pattern=[]
     
@@ -107,7 +106,11 @@ def ObjectiveFunction():
 
     d.unload()
 
-    print(f"{total_cost} {(-1)*sum_RI}")
+    del d
+
+    gc.collect()
+
+    return f"{total_cost} {(-1)*sum_RI}"
 #--------------------------------------------------
 
 if __name__ == '__main__':

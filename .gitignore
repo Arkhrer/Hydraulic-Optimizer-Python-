@@ -13,3 +13,4 @@ TS.py
 venv
 .savestate
 DataAnalysis/out
+EpanetDocker/app/__pycache__

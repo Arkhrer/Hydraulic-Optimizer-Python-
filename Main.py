@@ -15,6 +15,11 @@ import Loops
 import time
 import csv
 import os
+import gc
+
+import Globals
+from UDPClient import UDPclient
+
 
 #Parallelization
 from multiprocessing.pool import ThreadPool
@@ -25,7 +30,7 @@ from pymoo.core.problem import StarmapParallelization
 # for it in range(8):
 #     diametersLabels += [f"Diameter {it + 1}"]
 
-allOfThem: bool = False
+allOfThem: bool = True
 selectedAlgorithm: str = "RNSGA3"
 
 counter: bool = True
@@ -33,7 +38,7 @@ counter: bool = True
 #Parameters
 
 sampling = IntegerRandomSampling()
-generations = 2
+generations = 1000
 stop_criteria = ('n_gen', generations)
 
 n_objectives = 2
@@ -124,7 +129,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     if (counter == True):
         valuesRow = np.concatenate((valuesRow, str(problem.counter)), axis = None)
         valuesRow = np.concatenate((valuesRow, str((successes/len(res.F))/(problem.counter))), axis = None)
-    currentEndMin = int(currentAlgoEnd/60)
+    currentEndMin = currentAlgoEnd // 60
     valuesRow = np.concatenate((valuesRow, str(currentEndMin)), axis = None)
     valuesRow = np.concatenate((valuesRow, str(currentAlgoEnd - (currentEndMin * 60))), axis = None)
     
@@ -151,12 +156,6 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     
     currentWriter.writerow(valuesRow)
 
-    del problem
-    del algorithm
-    del resultsList
-    del res
-    del currentWriter
-
     f = open(".savestate", 'w')
     f.write(f"{seedRound}\n")
     f.write(f"{mutationRate}\n")
@@ -165,6 +164,17 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     f.write(f"{currentAlgorithm}\n")
     f.write(f"{seed}\n")
     f.close()
+
+    del problem
+    del algorithm
+    del resultsList
+    del res
+    del currentWriter
+    del valuesRow
+    del f
+    del row
+
+    gc.collect()
 
 def ExecuteAlgorithms(**kwargs):
     global currentRound
@@ -205,7 +215,7 @@ def ExecuteAlgorithms(**kwargs):
         f.close()
 
     #Threads
-    n_threads = 100
+    n_threads = Globals.numberOfThreads
     pool = ThreadPool(n_threads)
     #Processes
     # n_proccess = 100
@@ -243,23 +253,40 @@ def ExecuteAlgorithms(**kwargs):
 
     pool.close()
 
+
 if __name__ == '__main__':
     Config.warnings['not_compiled'] = False
+
+    Globals.initialize()
+
+    
+    client = docker.from_env()
+    client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
+
+    # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
+
+    dockers = []
+
+    for i in range(Globals.numberOfThreads):
+        dockers.append(client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True))
+
+    time.sleep(5)
 
     start = time.time()
 
     print("Running...")
-    
-    client = docker.from_env()
-    client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
     
     saveState = os.path.isfile(".savestate")
 
     Loops.SeedLoop(Loops.PopulationLoop, Loops.MutationRateLoop, Loops.CrossoverRateLoop, ExecuteAlgorithms)
 
     end = (time.time() - start)
-    endmin = int(end/60)
+    endmin = end // 60
     print("Time: ", endmin, " minutes and ", end - (endmin * 60), " seconds")
     
     if os.path.exists(".savestate"):
         os.remove(".savestate")
+
+    for i in range(Globals.numberOfThreads):
+        UDPclient("127.0.0.1", i + 9000, "Exit")
+        dockers[i].kill()

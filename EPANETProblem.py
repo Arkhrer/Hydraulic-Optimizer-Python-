@@ -7,8 +7,13 @@ from datetime import datetime
 from multiprocessing.pool import ThreadPool
 import threading
 import numpy as np
+from UDPClient import UDPclient
+from TCPServer import TCPserver
 
-import docker
+import Globals
+
+# from PortHandler import lock
+
 
 NUMBEROFPIPES: final = 8
 
@@ -60,13 +65,30 @@ class EPANETProblem(ElementwiseProblem):
 
     # Multithread solution
 
-        client = docker.from_env()
         diameter_pattern:str = "" + str(X[0])
         for i in range(1, len(X)):
             diameter_pattern+="," + str(X[i])
             
-        result = str(client.containers.run("epanet-docker", "app/ObjectiveFunction.py", environment = [f"DIAMETER_PATTERN={diameter_pattern}"], auto_remove = True), encoding = "utf-8").split()
-        
+        # result = str(client.containers.run("epanet-docker", "app/ObjectiveFunction.py", environment = [f"DIAMETER_PATTERN={diameter_pattern}"], auto_remove = True), encoding = "utf-8").split()
+
+        Globals.counterSemaphore.acquire()
+
+        thisPort = Globals.availablePorts.pop(0)
+
+        Globals.counterSemaphore.release()
+
+        # ENVIAR SINAL COMO CLIENTE UDP
+        UDPclient("localhost", thisPort, diameter_pattern)
+
+        # ABRIR SERVIDOR TCP QUE ESPERA A RESPOSTA
+        result = TCPserver("localhost", thisPort + 500).split(' ')
+
+
+        Globals.counterSemaphore.acquire()
+
+        Globals.availablePorts.append(thisPort)
+
+        Globals.counterSemaphore.release()
                 
         currentRes = [float(result[0]), float(result[1])]
             
@@ -75,6 +97,6 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            print(self.counter)
+            # print(self.counter)
 
         out["F"] = currentRes
