@@ -19,7 +19,7 @@ def ObjectiveFunction(splitDpInput):
     Hmin: float = 30.0
 
     # Loading Network
-    d = epanet('./app/EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=True)
+    d = epanet('./app/EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=False)
 
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)

@@ -268,7 +268,7 @@ if __name__ == '__main__':
     dockers = []
 
     for i in range(Globals.numberOfThreads):
-        dockers.append(client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True))
+        dockers.append(client.containers.run("epanet-docker", "app/Main.py", mem_limit="32m", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True))
 
     time.sleep(5)
 
