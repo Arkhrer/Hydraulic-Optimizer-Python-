@@ -110,7 +110,7 @@ def ObjectiveFunction(splitDpInput):
 
     gc.collect()
 
-    return f"{total_cost} {(-1)*sum_RI}"
+    print(f"{total_cost} {(-1)*sum_RI}")
 #--------------------------------------------------
 
 if __name__ == '__main__':

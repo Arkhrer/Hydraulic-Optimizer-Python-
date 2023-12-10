@@ -3,6 +3,7 @@ from ObjectiveFunction import ObjectiveFunction
 import os
 import time
 import gc
+import io, sys
 
 def TCPclient(host, port, msg):
     while True:
@@ -49,7 +50,20 @@ def UDPserver(host, port):
         udp_server.sendto(data, address)
         if data != b"Exit":
 
-            TCPclient("127.0.0.1", port + 500, ObjectiveFunction(str(data)[2:-1].split(',')))
+            #keep a named handle on the prior stdout 
+            old_stdout = sys.stdout 
+            #keep a named handle on io.StringIO() buffer 
+            new_stdout = io.StringIO() 
+            #Redirect python stdout into the builtin io.StringIO() buffer 
+            sys.stdout = new_stdout 
+
+            exec(f"ObjectiveFunction({str(data)[2:-1].split(',')})")
+
+            result = sys.stdout.getvalue().strip()
+
+            sys.stdout = old_stdout 
+
+            TCPclient("127.0.0.1", port + 500, result)
 
         # udp_server.sendto(data, address)
 
