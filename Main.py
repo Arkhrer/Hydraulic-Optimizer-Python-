@@ -46,8 +46,6 @@ n_dimensions = n_objectives
 
 currentRound = 0
 
-saveState:bool = False
-
 def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound):
     global counter
     global n_objectives
@@ -188,7 +186,6 @@ def ExecuteAlgorithms(**kwargs):
     global selectedAlgorithm
     global generations
     global stop_criteria
-    global saveState
     
     seed = kwargs["seed"]
     seedRound = kwargs["seedRound"]
@@ -196,7 +193,7 @@ def ExecuteAlgorithms(**kwargs):
     crossoverRate = kwargs["crossoverRate"]
     populationSize = kwargs["populationSize"]
     
-    if(saveState):
+    if(Globals.saveState):
         f = open(".savestate",'r')
         content = f.readlines()
         
@@ -235,14 +232,14 @@ def ExecuteAlgorithms(**kwargs):
 
     if(allOfThem):
         for currentAlgorithm in AlgorithmSelection.REF:
-            if(saveState):
+            if(Globals.saveState):
                 f = open(".savestate",'r')
                 content = f.readlines()
                 if (currentAlgorithm != content[4][:-1]):
                     f.close()
                 else:
                     f.close()
-                    saveState = False
+                    Globals.saveState = False
             else:
                 SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound)
 
@@ -255,10 +252,10 @@ def ExecuteAlgorithms(**kwargs):
 
 
 if __name__ == '__main__':
+
     Config.warnings['not_compiled'] = False
 
     Globals.initialize()
-
     
     Globals.client = docker.from_env()
     Globals.client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
@@ -274,7 +271,7 @@ if __name__ == '__main__':
 
     print("Running...")
     
-    saveState = os.path.isfile(".savestate")
+    Globals.saveState = os.path.isfile(".savestate")
 
     Loops.SeedLoop(Loops.PopulationLoop, Loops.MutationRateLoop, Loops.CrossoverRateLoop, ExecuteAlgorithms)
 

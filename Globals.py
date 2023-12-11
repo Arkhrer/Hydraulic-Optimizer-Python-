@@ -11,6 +11,8 @@ def initialize():
     global numberOfThreads
     global availablePorts
     global client
+    global saveState
+    saveState = False
     threadState = {}
     dockers = {}
     availablePorts = []
