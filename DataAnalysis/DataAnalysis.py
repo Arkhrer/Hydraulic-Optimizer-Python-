@@ -24,8 +24,8 @@ def analyseFile(file):
             
             line_count += 1
     
-    # CDF(allIterations)
-    parity(allIterations)
+    CDF(allIterations)
+    # parity(allIterations)
         
 def CDF(allIterations):
     allDiametersDict = np.array([])
@@ -119,14 +119,17 @@ def parity(allIterations):
             if "Current algorithm" in item[0]:
                 currentAlgorithm = item[1]
                 
-            elif "SumRI" in item[0]:
-                allRI = np.concatenate((allRI, float(item[1])), axis = None)
-                print(item[1])
-                
             elif "Cost" in item[0]:
                 allCosts = np.concatenate((allCosts, float(item[1])), axis = None)
                 print(item[1])
                 
+            elif "SumRI" in item[0]:
+                allRI = np.concatenate((allRI, float(item[1])), axis = None)
+                print(item[1])
+                
+                if(allCosts[-1] > 9999999.9):
+                    allCosts = np.delete(allCosts, -1)
+                    allRI = np.delete(allRI, -1)
                 
     
     fig,ax = plt.subplots()
