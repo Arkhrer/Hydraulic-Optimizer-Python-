@@ -1,4 +1,5 @@
 import socket
+import Globals
 
 def TCPserver(host, port):
     tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,6 +20,8 @@ def TCPserver(host, port):
         conn.sendall(data)
 
     conn.close()
+
+    Globals.threadState[port] = 1
 
     return result
 

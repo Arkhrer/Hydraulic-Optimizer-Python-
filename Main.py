@@ -260,15 +260,13 @@ if __name__ == '__main__':
     Globals.initialize()
 
     
-    client = docker.from_env()
-    client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
+    Globals.client = docker.from_env()
+    Globals.client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
 
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
-    dockers = []
-
     for i in range(Globals.numberOfThreads):
-        dockers.append(client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True))
+        Globals.dockers[i + 9000] = Globals.client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True)
 
     time.sleep(5)
 
@@ -289,4 +287,4 @@ if __name__ == '__main__':
 
     for i in range(Globals.numberOfThreads):
         UDPclient("127.0.0.1", i + 9000, "Exit")
-        dockers[i].kill()
+        Globals.dockers[i + 9000].kill()

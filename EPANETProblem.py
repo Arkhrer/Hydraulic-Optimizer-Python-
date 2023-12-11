@@ -4,20 +4,36 @@ from typing import final
 from epyt import epanet
 import random
 from datetime import datetime
-from multiprocessing.pool import ThreadPool
+import multiprocessing
 import threading
 import numpy as np
 from UDPClient import UDPclient
 from TCPServer import TCPserver
+import time
+import docker
+
 
 import Globals
 
 # from PortHandler import lock
 
+def TimeoutSolver(port, diameter_pattern):
+    while(Globals.threadState[port] != 1):
+        time.sleep(5)
+        if(Globals.threadState[port] == 1):
+            return
+        else:
+            removed_container = Globals.dockers.pop(port)
+            removed_container.remove(force = True)
+            time.sleep(5)
+            Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={port}"], detach = True)
+            time.sleep(3)
+            UDPclient("localhost", port, diameter_pattern)
+            time.sleep(5)
+
+
 
 NUMBEROFPIPES: final = 8
-
-# pool = ThreadPool(5)
 
 class EPANETProblem(ElementwiseProblem):
     def __init__(self, counter = False, **kwargs):
@@ -74,15 +90,21 @@ class EPANETProblem(ElementwiseProblem):
         Globals.counterSemaphore.acquire()
 
         thisPort = Globals.availablePorts.pop(0)
+        Globals.threadState[thisPort] = 0
 
         Globals.counterSemaphore.release()
 
         # ENVIAR SINAL COMO CLIENTE UDP
         UDPclient("localhost", thisPort, diameter_pattern)
 
+        #Contador de timeout pra identificar falha no Docker
+        timeoutThread = multiprocessing.Process(target = TimeoutSolver, args = (thisPort, diameter_pattern))
+        timeoutThread.start()
+
         # ABRIR SERVIDOR TCP QUE ESPERA A RESPOSTA
         result = TCPserver("localhost", thisPort + 500).split(' ')
 
+        timeoutThread.terminate()
 
         Globals.counterSemaphore.acquire()
 
@@ -97,6 +119,6 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            # print(self.counter)
+            print(self.counter)
 
         out["F"] = currentRes

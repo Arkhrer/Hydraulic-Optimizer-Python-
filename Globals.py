@@ -5,11 +5,14 @@ from threading import Semaphore
 
 counterSemaphore = Semaphore(1)
 
-numberOfThreads:int
-
 def initialize():
+    global threadState
+    global dockers
     global numberOfThreads
     global availablePorts
+    global client
+    threadState = {}
+    dockers = {}
     availablePorts = []
     currentPort = 0
     numberOfThreads = 100
