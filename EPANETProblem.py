@@ -119,6 +119,6 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            print(self.counter)
+            # print(self.counter)
 
         out["F"] = currentRes

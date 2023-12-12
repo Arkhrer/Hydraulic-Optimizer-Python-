@@ -65,7 +65,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
 
     res = minimize(problem, algorithm, stop_criteria, seed = seed, verbose = False)
 
-    currentAlgoEnd = (time.time() - start)
+    currentAlgoEnd = (time.time() - currentAlgoStart)
 
     # if not os.path.exists(f"results/{populationSize}_{crossoverRate}_{mutationRate}"): 
     #     os.makedirs(f"results/{populationSize}_{crossoverRate}_{mutationRate}")

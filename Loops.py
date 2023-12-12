@@ -10,6 +10,7 @@ crossoverRateRounds = 3
 def SeedLoop(NextFunction, *args, **kwargs):
     global seedRounds
     for i in range(seedRounds):
+        seed:int = 0
         if(Globals.saveState):
             f = open(".savestate",'r')
             content = f.readlines()
