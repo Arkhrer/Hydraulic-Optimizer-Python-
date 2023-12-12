@@ -27,7 +27,7 @@ def TimeoutSolver(port, diameter_pattern):
             removed_container.remove(force = True)
             time.sleep(5)
             Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={port}"], detach = True)
-            time.sleep(3)
+            time.sleep(5)
             UDPclient("localhost", port, diameter_pattern)
             time.sleep(5)
 
