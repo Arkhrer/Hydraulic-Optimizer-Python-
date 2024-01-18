@@ -1,0 +1,8 @@
+6 //Número de diâmetros comerciais
+//Diâmetro (in) - Diâmetro (mm) - Custo unitário ($/m)
+12	304.8	45.726
+16	406.4	70.400
+20	508.0	98.378
+24	609.6	129.333
+30	762.0	180.748
+40	1016.0	278.280

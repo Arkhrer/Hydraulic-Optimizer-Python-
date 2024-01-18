@@ -10,7 +10,6 @@ def ObjectiveFunction(splitDpInput):
     
     for i in range(len(splitDpInput)):
         diameter_pattern.append(int(splitDpInput[i]))
-    
 
     total_cost:int = 0
     sum_RI: float = 0.0
@@ -19,7 +18,7 @@ def ObjectiveFunction(splitDpInput):
     Hmin: float = 30.0
 
     # Loading Network
-    d = epanet('./app/EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=False)
+    d = epanet('./app/EPANET/Hanoi.inp', loadfile=True, verbose=False, multithreading=False)
 
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
@@ -32,7 +31,7 @@ def ObjectiveFunction(splitDpInput):
     diameter = []
     pipe_cost = []
 
-    finput = open('./app/Tabela_Custos.txt', 'rt')
+    finput = open('./app/Tabela_Custos_Hanoi.txt', 'rt')
 
     number_diameters = int(finput.readline().split()[0])
 
@@ -70,7 +69,9 @@ def ObjectiveFunction(splitDpInput):
 
     # mutex.release()
 
-    Warning6 = False
+    # Warning6 = False
+
+    sum_RI = 0
 
     for i in range(Njunctions):
 
@@ -78,20 +79,19 @@ def ObjectiveFunction(splitDpInput):
         junction_pressure = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_PRESSURE)
 
         if (junction_pressure < Hmin):
-            Warning6 = True
-            total_cost = 10000000.0
-            sum_RI = 0.0
-            break
+            # Warning6 = True
+            total_cost += 10000000.0
+            sum_RI -= 100.0
+            # break
+        else:
+            # junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
+            junction_demand = d.getNodeActualDemand(i + Nres_tanks)
+            aux1 = junction_demand * (junction_pressure - Hmin)
+            A += aux1
+            aux2 = junction_demand * Hmin
+            B += aux2
 
-        junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
-        # junction_demand = d.getNodeActualDemand(i + Nres_tanks)
-        aux1 = junction_demand * (junction_pressure - Hmin)
-        A += aux1
-        aux2 = junction_demand * Hmin
-        B += aux2
-
-    if (Warning6 == False):
-        sum_RI = 100 * (A / B)
+    sum_RI += 100 * (A / B)
 
     d.closeHydraulicAnalysis()
 

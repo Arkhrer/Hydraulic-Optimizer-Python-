@@ -19,21 +19,25 @@ import Globals
 
 def TimeoutSolver(port, diameter_pattern):
     while(Globals.threadState[port] != 1):
-        time.sleep(5)
+        time.sleep(30)
         if(Globals.threadState[port] == 1):
             return
         else:
             removed_container = Globals.dockers.pop(port)
+            UDPclient("127.0.0.1", port, "Exit")
+            time.sleep(5)
+            removed_container.kill()
+            time.sleep(5)
             removed_container.remove(force = True)
             time.sleep(5)
-            Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={port}"], detach = True)
-            time.sleep(5)
+            Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={port}"], detach = True)
+            time.sleep(10)
             UDPclient("localhost", port, diameter_pattern)
             time.sleep(5)
 
 
 
-NUMBEROFPIPES: final = 8
+NUMBEROFPIPES: final = 34
 
 class EPANETProblem(ElementwiseProblem):
     def __init__(self, counter = False, **kwargs):
@@ -105,20 +109,20 @@ class EPANETProblem(ElementwiseProblem):
         result = TCPserver("localhost", thisPort + 500).split(' ')
 
         timeoutThread.terminate()
+                
+        currentRes = [float(result[0]), float(result[1])]
 
         Globals.counterSemaphore.acquire()
 
         Globals.availablePorts.append(thisPort)
-
-        Globals.counterSemaphore.release()
-                
-        currentRes = [float(result[0]), float(result[1])]
             
         if (currentRes[0] <= 430000):
             self.overallSuccesses += 1
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            # print(self.counter)
-
+            print(self.counter)
         out["F"] = currentRes
+
+        Globals.counterSemaphore.release()
+

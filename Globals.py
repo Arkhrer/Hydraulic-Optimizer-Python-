@@ -19,6 +19,6 @@ def initialize():
     currentPort = 0
     numberOfThreads = 100
     for i in range(numberOfThreads):
-        availablePorts.append(9000 + i)
+        availablePorts.append(4000 + i)
 
 

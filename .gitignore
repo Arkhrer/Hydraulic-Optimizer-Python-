@@ -14,3 +14,6 @@ venv
 .savestate
 DataAnalysis/out
 EpanetDocker/app/__pycache__
+Alperovits
+DataAnalysis/out*
+.directory

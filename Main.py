@@ -31,9 +31,11 @@ from pymoo.core.problem import StarmapParallelization
 #     diametersLabels += [f"Diameter {it + 1}"]
 
 allOfThem: bool = True
-selectedAlgorithm: str = "RNSGA3"
+selectedAlgorithm: str = "RVEA"
 
 counter: bool = True
+
+NUMBER_OF_PIPES = 34
 
 #Parameters
 
@@ -54,6 +56,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     # global diametersLabels
     global generations
     global stop_criteria
+    global NUMBER_OF_PIPES
     
     problem = EPANETProblem(counter = counter, elementwise_runner = runner)
 
@@ -99,7 +102,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     
     for i in range(len(res.X)):
         diametersLabels = []
-        for it in range(8):
+        for it in range(NUMBER_OF_PIPES):
             diametersLabels += [f"Diameter {i} . {it + 1}"]
         labelsRow = np.concatenate((labelsRow, diametersLabels), axis = None)
         labelsRow = np.concatenate((labelsRow, ["Cost", "SumRI"]), axis = None)
@@ -245,6 +248,7 @@ def ExecuteAlgorithms(**kwargs):
 
     else:
         currentAlgorithm = selectedAlgorithm
+        Globals.saveState = False
         
         SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound)
 
@@ -263,7 +267,7 @@ if __name__ == '__main__':
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
     for i in range(Globals.numberOfThreads):
-        Globals.dockers[i + 9000] = Globals.client.containers.run("epanet-docker", "app/Main.py", network_mode = "host", environment = [f"PORT={i + 9000}"], detach = True)
+        Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
 
     time.sleep(5)
 
@@ -283,5 +287,6 @@ if __name__ == '__main__':
         os.remove(".savestate")
 
     for i in range(Globals.numberOfThreads):
-        UDPclient("127.0.0.1", i + 9000, "Exit")
-        Globals.dockers[i + 9000].kill()
+        UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
+        Globals.dockers[Globals.availablePorts[i]].kill()
+        Globals.dockers[Globals.availablePorts[i]].remove(force = True)

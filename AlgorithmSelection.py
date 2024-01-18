@@ -25,7 +25,7 @@ REF = {
         "NSGA3": NSGA3,
         "MOEAD": MOEAD,
         "CTAEA": CTAEA
-        #,"RVEA": RVEA
+        ,"RVEA": RVEA
     }
 
 def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SBX(prob = 0.8, vtype = int), mt = PM(prob = 0.050, vtype = int), no = 2, nd = 2,  rd = get_reference_directions("das-dennis", 2, n_partitions = 10 - 1, seed = 1)):
