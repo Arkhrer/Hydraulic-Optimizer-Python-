@@ -51,7 +51,7 @@ class EPANETProblem(ElementwiseProblem):
 
         for i in range(self.NumberOfVariables):
             self.Xmin.append(0)
-            self.Xmax.append(13)
+            self.Xmax.append(5)
 
         super().__init__(n_var = self.NumberOfVariables, n_obj = 2, xl = self.Xmin, xu= self.Xmax, vtype = int, **kwargs)
 
@@ -121,7 +121,7 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            # print(self.counter)
+            print(self.counter)
         out["F"] = currentRes
 
         Globals.counterSemaphore.release()

@@ -71,8 +71,6 @@ def ObjectiveFunction(splitDpInput):
 
     # Warning6 = False
 
-    sum_RI = 0
-
     for i in range(Njunctions):
 
         # junction_pressure = d.getNodePressure(i + Nres_tanks)
@@ -91,7 +89,8 @@ def ObjectiveFunction(splitDpInput):
             aux2 = junction_demand * Hmin
             B += aux2
 
-    sum_RI += 100 * (A / B)
+    if(B != 0):
+        sum_RI += 100 * (A / B)
 
     d.closeHydraulicAnalysis()
 

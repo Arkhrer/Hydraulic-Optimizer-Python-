@@ -45,8 +45,7 @@ def UDPserver(host, port):
         data, address = udp_server.recvfrom(1024)
         if not data:
             break
-        # print(str(data)[2:-1])
-        # print(address)
+
         udp_server.sendto(data, address)
         if data != b"Exit":
 
