@@ -35,7 +35,7 @@ selectedAlgorithm: str = "RVEA"
 
 counter: bool = True
 
-NUMBER_OF_PIPES = 34
+NUMBER_OF_PIPES = 8
 
 #Parameters
 
@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
-    for i in range(Globals.numberOfThreads):
+    for i in range(2 * Globals.numberOfThreads):
         Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
 
     time.sleep(5)
@@ -286,7 +286,7 @@ if __name__ == '__main__':
     if os.path.exists(".savestate"):
         os.remove(".savestate")
 
-    for i in range(Globals.numberOfThreads):
+    for i in range(2 * Globals.numberOfThreads):
         UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
         Globals.dockers[Globals.availablePorts[i]].kill()
         Globals.dockers[Globals.availablePorts[i]].remove(force = True)

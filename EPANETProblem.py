@@ -31,13 +31,14 @@ def TimeoutSolver(port, diameter_pattern):
             removed_container.remove(force = True)
             time.sleep(5)
             Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={port}"], detach = True)
+
             time.sleep(10)
             UDPclient("localhost", port, diameter_pattern)
             time.sleep(5)
 
 
 
-NUMBEROFPIPES: final = 34
+NUMBEROFPIPES: final = 8
 
 class EPANETProblem(ElementwiseProblem):
     def __init__(self, counter = False, **kwargs):
@@ -51,7 +52,7 @@ class EPANETProblem(ElementwiseProblem):
 
         for i in range(self.NumberOfVariables):
             self.Xmin.append(0)
-            self.Xmax.append(5)
+            self.Xmax.append(13)
 
         super().__init__(n_var = self.NumberOfVariables, n_obj = 2, xl = self.Xmin, xu= self.Xmax, vtype = int, **kwargs)
 
