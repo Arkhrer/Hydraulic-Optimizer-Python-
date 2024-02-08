@@ -57,6 +57,13 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     global generations
     global stop_criteria
     global NUMBER_OF_PIPES
+
+    # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
+
+    for i in range(2 * Globals.numberOfThreads):
+        Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
+
+    time.sleep(5)
     
     problem = EPANETProblem(counter = counter, elementwise_runner = runner)
 
@@ -175,6 +182,11 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     del f
     del row
 
+    for i in range(2 * Globals.numberOfThreads):
+        UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
+        Globals.dockers[Globals.availablePorts[i]].kill()
+        Globals.dockers[Globals.availablePorts[i]].remove(force = True)
+
     gc.collect()
 
 def ExecuteAlgorithms(**kwargs):
@@ -266,10 +278,10 @@ if __name__ == '__main__':
 
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
-    for i in range(2 * Globals.numberOfThreads):
-        Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
+    # for i in range(2 * Globals.numberOfThreads):
+    #     Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
 
-    time.sleep(5)
+    # time.sleep(5)
 
     start = time.time()
 
@@ -286,7 +298,7 @@ if __name__ == '__main__':
     if os.path.exists(".savestate"):
         os.remove(".savestate")
 
-    for i in range(2 * Globals.numberOfThreads):
-        UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
-        Globals.dockers[Globals.availablePorts[i]].kill()
-        Globals.dockers[Globals.availablePorts[i]].remove(force = True)
+    # for i in range(2 * Globals.numberOfThreads):
+    #     UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
+    #     Globals.dockers[Globals.availablePorts[i]].kill()
+    #     Globals.dockers[Globals.availablePorts[i]].remove(force = True)
