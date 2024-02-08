@@ -2,8 +2,16 @@ import socket
 import Globals
 
 def TCPserver(host, port):
-    tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    tcp_server.bind((host, port))
+
+    while True:
+        try:
+            tcp_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tcp_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            tcp_server.bind((host, port))
+            break
+        except socket.error:
+            # print("Falha na conexão. Reconectando")
+            pass
 
     tcp_server.listen()
     conn, addr = tcp_server.accept()
@@ -19,6 +27,7 @@ def TCPserver(host, port):
         
         conn.sendall(data)
 
+    conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 
     Globals.threadState[port] = 1

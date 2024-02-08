@@ -103,13 +103,14 @@ class EPANETProblem(ElementwiseProblem):
         UDPclient("localhost", thisPort, diameter_pattern)
 
         #Contador de timeout pra identificar falha no Docker
-        timeoutThread = multiprocessing.Process(target = TimeoutSolver, args = (thisPort, diameter_pattern))
-        timeoutThread.start()
+        
+        #timeoutThread = multiprocessing.Process(target = TimeoutSolver, args = (thisPort, diameter_pattern))
+        #timeoutThread.start()
 
         # ABRIR SERVIDOR TCP QUE ESPERA A RESPOSTA
         result = TCPserver("localhost", thisPort + 500).split(' ')
 
-        timeoutThread.terminate()
+        #timeoutThread.terminate()
                 
         currentRes = [float(result[0]), float(result[1])]
 
