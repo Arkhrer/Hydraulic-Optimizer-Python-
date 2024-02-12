@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import csv
 import os
 
-def analyseFile(file):
+def analyseFile(file, option):
     reader = csv.reader(open(file, encoding = "utf-8"))
     
     line_count = 0
@@ -17,15 +17,14 @@ def analyseFile(file):
             line_count += 1
         else:
             line = zip(labels, line)
-            # for item in line:    
-            #     print(f"{item[0]} - {item[1]}")
                 
             allIterations = np.concatenate((allIterations, line), axis = None)
             
             line_count += 1
-    
-    CDF(allIterations)
-    # parity(allIterations)
+    if (option == "CDF"):
+        CDF(allIterations)
+    elif (option == "Parity"):
+        parity(allIterations)
         
 def CDF(allIterations):
     allDiametersDict = np.array([])
@@ -93,7 +92,11 @@ def CDF(allIterations):
     
         fig,ax = plt.subplots()
         
-        ax.bar(range(1, 14), outValues, width=1, edgecolor="white", linewidth = 0.7)
+        # ax.bar(range(1, 14), outValues, width=1, edgecolor="white", linewidth = 0.7)
+
+        ax.stairs(outValues, linewidth = 3, color = "#3CB371")
+        ax.set(xlim=(0, 13))
+        ax.grid(True, axis = 'y')
         
         # ax.set(xlim=(0, max(list(sortedX.keys())) + 1), xticks=np.arange(1, max(list(sortedX.keys())) + 1), ylim=(0, 1), yticks=np.arange(0, 1))
         
@@ -121,11 +124,9 @@ def parity(allIterations):
                 
             elif "Cost" in item[0]:
                 allCosts = np.concatenate((allCosts, float(item[1])), axis = None)
-                print(item[1])
                 
             elif "SumRI" in item[0]:
                 allRI = np.concatenate((allRI, float(item[1])), axis = None)
-                print(item[1])
                 
                 if(allCosts[-1] > 9999999.9):
                     allCosts = np.delete(allCosts, -1)
@@ -138,7 +139,10 @@ def parity(allIterations):
     sizes = np.random.uniform(15, 80, len(allRI))
     colors = np.random.uniform(15, 80, len(allRI))
     
-    ax.scatter(allRI, allCosts, s = sizes, c = colors, vmin = 0, vmax = 1000)
+    # ax.scatter(allRI, allCosts, s = sizes, c = colors, vmin = 0, vmax = 1000)
+    ax.scatter(allRI, allCosts, c = '#00bfff', s = 10)
+    ax.set(xlim=(0, 80), ylim=(0, 3000000))
+    ax.grid(True, axis = 'y')
 
     if not os.path.exists(f"DataAnalysis/out/parity"): 
         os.makedirs(f"DataAnalysis/out/parity/")
@@ -151,7 +155,8 @@ def parity(allIterations):
 def scanDirectory(directory):
     for entry in os.scandir("results"):
         if entry.is_file():
-            analyseFile(entry)
+            analyseFile(entry, "CDF")
+            analyseFile(entry, "Parity")
         elif entry.is_dir():
             scanDirectory(entry)
 
