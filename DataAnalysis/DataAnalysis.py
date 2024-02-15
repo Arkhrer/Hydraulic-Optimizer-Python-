@@ -71,31 +71,41 @@ def CDF(allIterations):
         total = 0
         for value in values:
             total += value
+
+        valuesum = 0
         
         for i in range(len(values)):
             if i == 0:
-                values[i] = values[i] / total
+                valuesum = valuesum + values[i]
+                values[i] = valuesum / total
             else:
-                values[i] = values[i - 1] + (values[i] / total)
-        
-        outValues = []
+                valuesum = valuesum + values[i]
+                values[i] = valuesum / total
+                # values[i] = values[i - 1] + (values[i] / total)
+
+        outValues = [0.0]
         j = 0
         for i in range(13):
-            if i + 1 in sortedX:
-                outValues = np.concatenate((outValues, values[j]), axis = None)
-                j += 1
+            if i in sortedX:
+                if i != 12:
+                    outValues = np.concatenate((outValues, values[j]), axis = None)
+                    j += 1
+                else:
+                    outValues = np.concatenate((outValues, 1.0), axis = None)
+                    j += 1
             else:
                 if i == 0:
                     outValues = np.concatenate((outValues, 0), axis = None)
                 else:
-                    outValues = np.concatenate((outValues, outValues[i - 1]), axis = None)
+                    outValues = np.concatenate((outValues, outValues[-1]), axis = None)
     
         fig,ax = plt.subplots()
         
         # ax.bar(range(1, 14), outValues, width=1, edgecolor="white", linewidth = 0.7)
 
-        ax.stairs(outValues, linewidth = 3, color = "#3CB371")
-        ax.set(xlim=(0, 13))
+        # ax.stairs(outValues, linewidth = 3, color = "#3CB371")
+        ax.plot(outValues, linewidth = 3, color = "#3CB371")
+        ax.set(xlim=(0, 13), ylim = (0.0,1.0), xlabel = "Diameter index", ylabel = "Probability", title = f"{currentAlgorithm} {current}")
         ax.grid(True, axis = 'y')
         
         # ax.set(xlim=(0, max(list(sortedX.keys())) + 1), xticks=np.arange(1, max(list(sortedX.keys())) + 1), ylim=(0, 1), yticks=np.arange(0, 1))
@@ -141,7 +151,7 @@ def parity(allIterations):
     
     # ax.scatter(allRI, allCosts, s = sizes, c = colors, vmin = 0, vmax = 1000)
     ax.scatter(allRI, allCosts, c = '#00bfff', s = 10)
-    ax.set(xlim=(0, 80), ylim=(0, 3000000))
+    ax.set(xlim=(0, 80), ylim=(0, 3000000), ylabel = "Cost ($)", xlabel = "RI", title = currentAlgorithm)
     ax.grid(True, axis = 'y')
 
     if not os.path.exists(f"DataAnalysis/out/parity"): 
