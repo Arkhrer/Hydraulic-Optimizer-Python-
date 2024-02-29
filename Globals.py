@@ -17,7 +17,7 @@ def initialize():
     dockers = {}
     availablePorts = []
     currentPort = 0
-    numberOfThreads = 25
+    numberOfThreads = 100
     for i in range(numberOfThreads * 2):
         availablePorts.append(8000 + i)
 
