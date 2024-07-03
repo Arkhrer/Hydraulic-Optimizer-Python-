@@ -184,7 +184,9 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
 
     for i in range(2 * Globals.numberOfThreads):
         UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
-        Globals.dockers[Globals.availablePorts[i]].kill()
+        #print(Globals.dockers[Globals.availablePorts[i]].attrs["State"])
+        if (Globals.dockers[Globals.availablePorts[i]].attrs["State"] == "running"):
+            Globals.dockers[Globals.availablePorts[i]].kill()
         Globals.dockers[Globals.availablePorts[i]].remove(force = True)
 
     gc.collect()

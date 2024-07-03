@@ -78,8 +78,8 @@ def ObjectiveFunction(splitDpInput):
 
         if (junction_pressure < Hmin):
             # Warning6 = True
-            total_cost += 10000000.0
-            sum_RI -= 100.0
+            total_cost += (Hmin - junction_pressure) * 10000000.0
+            sum_RI -= (Hmin - junction_pressure) * 100.0
             # break
         else:
             # junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)

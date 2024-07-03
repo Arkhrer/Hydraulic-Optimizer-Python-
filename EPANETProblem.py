@@ -111,7 +111,6 @@ class EPANETProblem(ElementwiseProblem):
         result = TCPserver("localhost", thisPort + 500).split(' ')
 
         #timeoutThread.terminate()
-                
         currentRes = [float(result[0]), float(result[1])]
 
         Globals.counterSemaphore.acquire()
@@ -123,8 +122,15 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            print(self.counter)
+            #print(self.counter)
+
+            #if ((self.counter%25000 == 0) and (self.counter != 0)):
+                #pass
+                #Aqui fazer ele esperar todos as threads pararem e reiniciar os dockers
+
+
         out["F"] = currentRes
+            
 
         Globals.counterSemaphore.release()
 
