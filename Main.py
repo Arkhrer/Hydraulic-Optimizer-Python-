@@ -31,11 +31,11 @@ from pymoo.core.problem import StarmapParallelization
 #     diametersLabels += [f"Diameter {it + 1}"]
 
 allOfThem: bool = True
-selectedAlgorithm: str = "RVEA"
+selectedAlgorithm: str = "NSGA3"
 
 counter: bool = True
 
-NUMBER_OF_PIPES = 8
+#NUMBER_OF_PIPES = 8
 
 #Parameters
 
@@ -56,7 +56,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     # global diametersLabels
     global generations
     global stop_criteria
-    global NUMBER_OF_PIPES
+    #global NUMBER_OF_PIPES
 
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
@@ -109,7 +109,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     
     for i in range(len(res.X)):
         diametersLabels = []
-        for it in range(NUMBER_OF_PIPES):
+        for it in range(Globals.NUMBER_OF_PIPES):
             diametersLabels += [f"Diameter {i} . {it + 1}"]
         labelsRow = np.concatenate((labelsRow, diametersLabels), axis = None)
         labelsRow = np.concatenate((labelsRow, ["Cost", "SumRI"]), axis = None)

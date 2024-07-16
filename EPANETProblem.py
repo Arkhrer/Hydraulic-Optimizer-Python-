@@ -23,28 +23,26 @@ def TimeoutSolver(port, diameter_pattern):
         if(Globals.threadState[port] == 1):
             return
         else:
-            removed_container = Globals.dockers.pop(port)
+            #removed_container = Globals.dockers.pop(port)
             UDPclient("127.0.0.1", port, "Exit")
             time.sleep(5)
-            removed_container.kill()
-            time.sleep(5)
-            removed_container.remove(force = True)
-            time.sleep(5)
+            if (Globals.dockers[port].attrs["State"] == "running"):
+                Globals.dockers[port].kill()
+            Globals.dockers[port].remove(force = True)
             Globals.dockers[port] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={port}"], detach = True)
 
             time.sleep(10)
             UDPclient("localhost", port, diameter_pattern)
-            time.sleep(5)
 
 
 
-NUMBEROFPIPES: final = 8
+#NUMBEROFPIPES: final = 8
 
 class EPANETProblem(ElementwiseProblem):
     def __init__(self, counter = False, **kwargs):
         self.Xmin = []
         self.Xmax = []
-        self.NumberOfVariables = NUMBEROFPIPES
+        self.NumberOfVariables = Globals.NUMBER_OF_PIPES
         self.allowcounter = counter
         self.overallSuccesses = 0
         if self.allowcounter == True:
@@ -52,7 +50,11 @@ class EPANETProblem(ElementwiseProblem):
 
         for i in range(self.NumberOfVariables):
             self.Xmin.append(0)
-            self.Xmax.append(13)
+            self.Xmax.append(Globals.AVAILABLE_DIAMETERS - 1)
+
+        for iPort in Globals.availablePorts:
+            Globals.threadState[iPort] = 0
+
 
         super().__init__(n_var = self.NumberOfVariables, n_obj = 2, xl = self.Xmin, xu= self.Xmax, vtype = int, **kwargs)
 
@@ -95,7 +97,7 @@ class EPANETProblem(ElementwiseProblem):
         Globals.counterSemaphore.acquire()
 
         thisPort = Globals.availablePorts.pop(0)
-        Globals.threadState[thisPort] = 0
+        #Globals.threadState[thisPort] = 0
 
         Globals.counterSemaphore.release()
 
@@ -110,8 +112,19 @@ class EPANETProblem(ElementwiseProblem):
         # ABRIR SERVIDOR TCP QUE ESPERA A RESPOSTA
         result = TCPserver("localhost", thisPort + 500).split(' ')
 
+        Globals.threadState[thisPort] += 1
         #timeoutThread.terminate()
         currentRes = [float(result[0]), float(result[1])]
+
+        if(Globals.threadState[thisPort] >= 2000):
+            UDPclient("127.0.0.1", thisPort, "Exit")
+            #print(Globals.dockers[Globals.availablePorts[i]].attrs["State"])
+            if (Globals.dockers[thisPort].attrs["State"] == "running"):
+                Globals.dockers[thisPort].kill()
+            Globals.dockers[thisPort].remove(force = True)
+            Globals.dockers[thisPort] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={thisPort}"], detach = True)
+            Globals.threadState[thisPort] = 0
+            time.sleep(30)
 
         Globals.counterSemaphore.acquire()
 
@@ -122,11 +135,7 @@ class EPANETProblem(ElementwiseProblem):
         
         if self.allowcounter == True:
             self.counter = self.counter + 1
-            #print(self.counter)
-
-            #if ((self.counter%25000 == 0) and (self.counter != 0)):
-                #pass
-                #Aqui fazer ele esperar todos as threads pararem e reiniciar os dockers
+            print(self.counter)
 
 
         out["F"] = currentRes

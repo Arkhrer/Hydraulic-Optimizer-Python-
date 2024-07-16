@@ -3,7 +3,7 @@ import Globals
 
 
 seedRounds = 30
-populationRounds = 2
+populationRounds = 3
 mutationRateRounds = 3
 crossoverRateRounds = 3
 

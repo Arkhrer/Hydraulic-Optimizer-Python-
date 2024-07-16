@@ -18,7 +18,7 @@ def ObjectiveFunction(splitDpInput):
     Hmin: float = 30.0
 
     # Loading Network
-    d = epanet('./app/EPANET/Alperovits_Shamir.inp', loadfile=True, verbose=False, multithreading=False)
+    d = epanet('./app/EPANET/Hanoi.inp', loadfile=True, verbose=False, multithreading=False)
 
     d.openHydraulicAnalysis()
     d.initializeHydraulicAnalysis(0)
@@ -31,7 +31,7 @@ def ObjectiveFunction(splitDpInput):
     diameter = []
     pipe_cost = []
 
-    finput = open('./app/Tabela_Custos.txt', 'rt')
+    finput = open('./app/Tabela_Custos_Hanoi.txt', 'rt')
 
     number_diameters = int(finput.readline().split()[0])
 
@@ -94,14 +94,14 @@ def ObjectiveFunction(splitDpInput):
 
     d.closeHydraulicAnalysis()
 
-    d.saveHydraulicsOutputReportingFile()
+    #d.saveHydraulicsOutputReportingFile()
 
-    d.setReportFormatReset()
-    d.setReport('FILE Output.rpt')
-    d.setReport('STATUS YES')
-    d.setReport('SUMMARY YES')
-    d.setReport('MESSAGES YES')
-    d.writeReport()
+    #d.setReportFormatReset()
+    #d.setReport('FILE Output.rpt')
+    #d.setReport('STATUS YES')
+    #d.setReport('SUMMARY YES')
+    #d.setReport('MESSAGES YES')
+    #d.writeReport()
 
     d.unload()
 
