@@ -38,10 +38,5 @@ def CrossoverRateLoop(NextFunction, *args, **kwargs):
         crossoverRate = 0.1 + 0.4 * i
         NextFunction(*args, **kwargs, crossoverRate = round(crossoverRate, 3))
 
-
-def PrintOk(**kwargs):
-    for key, value in kwargs.items():
-        print(f"key: {key}\tvalue: {value}")
-
 if __name__ == "__main__":
     SeedLoop(PopulationLoop,MutationRateLoop,CrossoverRateLoop,PrintOk)
