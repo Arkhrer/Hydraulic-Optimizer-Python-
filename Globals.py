@@ -1,5 +1,6 @@
 # from threading import Lock
 from threading import Semaphore
+from pymoo.operators.sampling.rnd import IntegerRandomSampling
 
 # lock = Lock()
 
@@ -14,10 +15,22 @@ def initialize():
     global client
     global saveState
     global AVAILABLE_DIAMETERS
+    global n_objectives
+    global n_dimensions
+    global sampling
+    global generations
+    global stop_criteria
 
     AVAILABLE_DIAMETERS = 6
 
     NUMBER_OF_PIPES = 34
+    generations = 1000
+    stop_criteria = ('n_gen', generations)
+
+    sampling = IntegerRandomSampling()
+
+    n_objectives = 2
+    n_dimensions = n_objectives
 
     saveState = False
     threadState = {}

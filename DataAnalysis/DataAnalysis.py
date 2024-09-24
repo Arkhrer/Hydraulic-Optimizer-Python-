@@ -122,16 +122,57 @@ def CDF(allIterations):
         current += 1
         
 def parity(allIterations):
+    currentcolor = 0
+    prevSeed = ""
+    colors = {0 : '#00bfff',
+    1 : '#8f6f84',
+    2 : '#e36b17',  
+    3 : '#2ca719',
+    4 : '#daae0e',
+    5 : '#f40010',
+    6 : '#2d1fe3'
+    }
+
+    totalMinutes: float = 0
+    totalSeconds: float = 0
+
+    coloredSeed = dict()
+
     allRI = np.array([])
     allCosts = np.array([])
     
     currentAlgorithm = ""
     
+    fig,ax = plt.subplots()
+
+    ax.set(xlim=(0, 80), ylim=(0, 3000000), ylabel = "Cost ($)", xlabel = "RI", title = currentAlgorithm)
+    ax.grid(True, axis = 'y')
+    
     for iteration in allIterations:
         for item in iteration:
+            if "Minutes" in item[0]:
+                totalMinutes += float(item[1])
+            if "Seconds" in item[0]:
+                totalSeconds += float(item[1])
+
             if "Current algorithm" in item[0]:
                 currentAlgorithm = item[1]
+
+            elif "Seed" in item[0]:
+                if item[1] != prevSeed:
+                    if prevSeed != "":
+                        ax.scatter(allRI, allCosts, c = colors[coloredSeed[prevSeed]], alpha = 0.3, s = 10)
+                    
+                    if item[1] not in coloredSeed:
+                        coloredSeed[item[1]] = currentcolor
+                        currentcolor += 1
+
+                    #ax.scatter(allRI, allCosts, c = '#00bfff', s = 10)
+                    allRI = np.array([])
+                    allCosts = np.array([])
+                    prevSeed = item[1]
                 
+                    
             elif "Cost" in item[0]:
                 allCosts = np.concatenate((allCosts, float(item[1])), axis = None)
                 
@@ -143,21 +184,26 @@ def parity(allIterations):
                     allRI = np.delete(allRI, -1)
                 
     
-    fig,ax = plt.subplots()
-    
-    # size and color:
-    sizes = np.random.uniform(15, 80, len(allRI))
-    colors = np.random.uniform(15, 80, len(allRI))
-    
     # ax.scatter(allRI, allCosts, s = sizes, c = colors, vmin = 0, vmax = 1000)
-    ax.scatter(allRI, allCosts, c = '#00bfff', s = 10)
-    ax.set(xlim=(0, 80), ylim=(0, 3000000), ylabel = "Cost ($)", xlabel = "RI", title = currentAlgorithm)
-    ax.grid(True, axis = 'y')
+    ax.scatter(allRI, allCosts, c = colors[coloredSeed[prevSeed]], alpha = 0.3, s = 10)
+    # ax.set(xlim=(0, 80), ylim=(0, 3000000), ylabel = "Cost ($)", xlabel = "RI", title = currentAlgorithm)
+    # ax.grid(True, axis = 'y')
 
     if not os.path.exists(f"DataAnalysis/out/parity"): 
         os.makedirs(f"DataAnalysis/out/parity/")
     plt.savefig(f"DataAnalysis/out/parity/{currentAlgorithm}.png")
     plt.close()
+
+    extraMinutes = int(totalSeconds/60)
+    totalMinutes += extraMinutes
+    totalSeconds -= extraMinutes*60
+    totalHours = int(totalMinutes/60)
+    totalMinutes -= totalHours * 60
+
+    if not os.path.exists(f"DataAnalysis/out/time"): 
+        os.makedirs(f"DataAnalysis/out/time/")
+    f = open(f"DataAnalysis/out/time/{currentAlgorithm}_time", "w")
+    f.write(f"{totalHours} horas, {totalMinutes} minutos e {totalSeconds} segundos")
         
             
 

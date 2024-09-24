@@ -1,14 +1,16 @@
-# from pymoo.core.problem import StarmapParallelization
-from pymoo.operators.sampling.rnd import IntegerRandomSampling
 from pymoo.util.ref_dirs import get_reference_directions
+from pymoo.core.problem import StarmapParallelization
 from pymoo.operators.crossover.sbx import SBX
+from multiprocessing.pool import ThreadPool
 from pymoo.operators.mutation.pm import PM
 from EPANETProblem import EPANETProblem
 from pymoo.optimize import minimize
 import matplotlib.pyplot as plt
 from pymoo.config import Config
+from UDPClient import UDPclient
 import AlgorithmSelection
 import numpy as np
+import Globals
 import docker
 import random
 import Loops
@@ -17,19 +19,6 @@ import csv
 import os
 import gc
 
-import Globals
-from UDPClient import UDPclient
-
-
-#Parallelization
-from multiprocessing.pool import ThreadPool
-# import multiprocessing
-from pymoo.core.problem import StarmapParallelization
-
-# diametersLabels = []
-# for it in range(8):
-#     diametersLabels += [f"Diameter {it + 1}"]
-
 allOfThem: bool = True
 selectedAlgorithm: str = "NSGA3"
 
@@ -37,26 +26,10 @@ counter: bool = True
 
 #NUMBER_OF_PIPES = 8
 
-#Parameters
-
-sampling = IntegerRandomSampling()
-generations = 1000
-stop_criteria = ('n_gen', generations)
-
-n_objectives = 2
-n_dimensions = n_objectives
-
 currentRound = 0
 
 def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate, crossover, currentAlgorithm, runner, ref_dirs, seedRound):
     global counter
-    global n_objectives
-    global n_dimensions
-    global sampling
-    # global diametersLabels
-    global generations
-    global stop_criteria
-    #global NUMBER_OF_PIPES
 
     # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
 
@@ -69,16 +42,13 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
 
     print(currentAlgorithm)
 
-    algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = populationSize, samp = sampling, co = crossover, mt = mutation, no = n_objectives, nd = n_dimensions, rd = ref_dirs)
+    algorithm = AlgorithmSelection.SelectAlgorithm(name = currentAlgorithm, pop_size = populationSize, samp = Globals.sampling, co = crossover, mt = mutation, no = Globals.n_objectives, nd = Globals.n_dimensions, rd = ref_dirs)
 
     currentAlgoStart = time.time()
 
-    res = minimize(problem, algorithm, stop_criteria, seed = seed, verbose = False)
+    res = minimize(problem, algorithm, Globals.stop_criteria, seed = seed, verbose = False)
 
     currentAlgoEnd = (time.time() - currentAlgoStart)
-
-    # if not os.path.exists(f"results/{populationSize}_{crossoverRate}_{mutationRate}"): 
-    #     os.makedirs(f"results/{populationSize}_{crossoverRate}_{mutationRate}")
 
     if not os.path.exists(f"results"): 
         os.makedirs(f"results")
@@ -120,7 +90,7 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
     #Values
     
     valuesRow = np.concatenate((currentAlgorithm, str(seed)), axis = None)
-    valuesRow = np.concatenate((valuesRow, str(generations)), axis = None)
+    valuesRow = np.concatenate((valuesRow, str(Globals.generations)), axis = None)
     valuesRow = np.concatenate((valuesRow, str(populationSize)), axis = None)
     valuesRow = np.concatenate((valuesRow, str(crossoverRate)), axis = None)
     valuesRow = np.concatenate((valuesRow, str(mutationRate)), axis = None)
@@ -184,7 +154,6 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
 
     for i in range(2 * Globals.numberOfThreads):
         UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
-        #print(Globals.dockers[Globals.availablePorts[i]].attrs["State"])
         if (Globals.dockers[Globals.availablePorts[i]].attrs["State"] == "running"):
             Globals.dockers[Globals.availablePorts[i]].kill()
         Globals.dockers[Globals.availablePorts[i]].remove(force = True)
@@ -194,15 +163,10 @@ def SingleExecution(seed, populationSize, mutationRate, mutation, crossoverRate,
 def ExecuteAlgorithms(**kwargs):
     global currentRound
     global counter
-    global n_objectives
-    global n_dimensions
     global counter
-    global sampling
     global diametersLabels
     global allOfThem
     global selectedAlgorithm
-    global generations
-    global stop_criteria
     
     seed = kwargs["seed"]
     seedRound = kwargs["seedRound"]
@@ -231,15 +195,12 @@ def ExecuteAlgorithms(**kwargs):
     #Threads
     n_threads = Globals.numberOfThreads
     pool = ThreadPool(n_threads)
-    #Processes
-    # n_proccess = 100
-    # pool = multiprocessing.Pool(n_proccess)
     
     runner = StarmapParallelization(pool.starmap)
 
     # --------------------------------------------- #
 
-    ref_dirs = get_reference_directions("das-dennis", n_dimensions, n_partitions = populationSize - 1, seed = seed)
+    ref_dirs = get_reference_directions("das-dennis", Globals.n_dimensions, n_partitions = populationSize - 1, seed = seed)
 
     mutation = PM(prob = mutationRate, vtype = int)
 
@@ -278,13 +239,6 @@ if __name__ == '__main__':
     Globals.client = docker.from_env()
     Globals.client.images.build(path = "./EpanetDocker/", tag = "epanet-docker", rm = True, nocache = False)
 
-    # CRIAR N(NUMERO DE THREADS) DOCKERS QUE ABRIRÃO SERVIDORES UDP
-
-    # for i in range(2 * Globals.numberOfThreads):
-    #     Globals.dockers[Globals.availablePorts[i]] = Globals.client.containers.run("epanet-docker", "app/Main.py", mem_limit = "128m", network_mode = "host", environment = [f"PORT={Globals.availablePorts[i]}"], detach = True)
-
-    # time.sleep(5)
-
     start = time.time()
 
     print("Running...")
@@ -299,8 +253,3 @@ if __name__ == '__main__':
     
     if os.path.exists(".savestate"):
         os.remove(".savestate")
-
-    # for i in range(2 * Globals.numberOfThreads):
-    #     UDPclient("127.0.0.1", Globals.availablePorts[i], "Exit")
-    #     Globals.dockers[Globals.availablePorts[i]].kill()
-    #     Globals.dockers[Globals.availablePorts[i]].remove(force = True)

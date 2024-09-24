@@ -48,7 +48,7 @@ def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SB
         return REF[name](ref_dirs = ref_dirs, pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "RNSGA3":
         # Uncertain about parameters
-        return REF[name](ref_points = ref_points, pop_per_ref_point = 20, mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](ref_points = ref_points, pop_per_ref_point = population_size / len(ref_points), mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "NSGA2":
         return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "MOEAD":
