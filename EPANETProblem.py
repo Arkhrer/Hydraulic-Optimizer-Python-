@@ -11,6 +11,7 @@ from UDPClient import UDPclient
 from TCPServer import TCPserver
 import time
 import docker
+from ObjectiveFunction import ObjectiveFunction
 
 
 import Globals
