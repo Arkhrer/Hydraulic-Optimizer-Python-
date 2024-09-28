@@ -4,15 +4,6 @@ import os
 # from main import mutex
    
 def ObjectiveFunction(diameter_pattern):
-    
-    # splitDpInput = os.getenv("DIAMETER_PATTERN").split(',')
-    
-    # diameter_pattern=[]
-    
-    # for i in range(len(splitDpInput)):
-    #     diameter_pattern.append(int(splitDpInput[i]))
-    
-
     total_cost:int = 0
     sum_RI: float = 0.0
     A: float = 0.0
@@ -62,16 +53,7 @@ def ObjectiveFunction(diameter_pattern):
         pipe_cost.append(cost_base[aux] * pipe_length)
         total_cost += pipe_cost[i]
         
-
-    # Hydraulic Analysis
-
-    # mutex.acquire()
-
     t = d.runHydraulicAnalysis()
-
-    # mutex.release()
-
-    Warning6 = False
 
     for i in range(Njunctions):
 
@@ -79,31 +61,22 @@ def ObjectiveFunction(diameter_pattern):
         junction_pressure = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_PRESSURE)
 
         if (junction_pressure < Hmin):
-            Warning6 = True
-            total_cost = 10000000.0
-            sum_RI = 0.0
-            break
+            # Warning6 = True
+            total_cost += (Hmin - junction_pressure) * 10000000.0
+            sum_RI -= (Hmin - junction_pressure) * 100.0
+            # break
+        else:
+            # junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
+            junction_demand = d.getNodeActualDemand(i + Nres_tanks)
+            aux1 = junction_demand * (junction_pressure - Hmin)
+            A += aux1
+            aux2 = junction_demand * Hmin
+            B += aux2
 
-        junction_demand = d.api.ENgetnodevalue(i + Nres_tanks, d.ToolkitConstants.EN_DEMAND)
-        # junction_demand = d.getNodeActualDemand(i + Nres_tanks)
-        aux1 = junction_demand * (junction_pressure - Hmin)
-        A += aux1
-        aux2 = junction_demand * Hmin
-        B += aux2
-
-    if (Warning6 == False):
-        sum_RI = 100 * (A / B)
+    if(B != 0):
+        sum_RI += 100 * (A / B)
 
     d.closeHydraulicAnalysis()
-
-    d.saveHydraulicsOutputReportingFile()
-
-    d.setReportFormatReset()
-    d.setReport('FILE Output.rpt')
-    d.setReport('STATUS YES')
-    d.setReport('SUMMARY YES')
-    d.setReport('MESSAGES YES')
-    d.writeReport()
 
     d.unload()
 

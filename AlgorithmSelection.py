@@ -25,7 +25,7 @@ REF = {
         "NSGA3": NSGA3,
         "MOEAD": MOEAD,
         "CTAEA": CTAEA
-        #,"RVEA": RVEA
+        ,"RVEA": RVEA
     }
 
 def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SBX(prob = 0.8, vtype = int), mt = PM(prob = 0.050, vtype = int), no = 2, nd = 2,  rd = get_reference_directions("das-dennis", 2, n_partitions = 10 - 1, seed = 1)):
@@ -48,7 +48,7 @@ def SelectAlgorithm(name, pop_size = 10, samp = IntegerRandomSampling(), co = SB
         return REF[name](ref_dirs = ref_dirs, pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "RNSGA3":
         # Uncertain about parameters
-        return REF[name](ref_points = ref_points, pop_per_ref_point = 20, mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
+        return REF[name](ref_points = ref_points, pop_per_ref_point = population_size // len(ref_points), mu = 0.1, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "NSGA2":
         return REF[name](pop_size = population_size, sampling = sampling, crossover = crossover, mutation = mutation)
     elif name == "MOEAD":
