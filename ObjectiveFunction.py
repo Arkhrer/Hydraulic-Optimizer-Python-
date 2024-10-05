@@ -1,5 +1,6 @@
 from CustomEpanet import epanet
 import os
+import gc
 
 # from main import mutex
    
@@ -79,6 +80,10 @@ def ObjectiveFunction(diameter_pattern):
     d.closeHydraulicAnalysis()
 
     d.unload()
+
+    del d
+
+    gc.collect()
 
     # print(f"{total_cost} {(-1)*sum_RI}")
     return total_cost, (-1)*sum_RI

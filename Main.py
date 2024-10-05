@@ -14,8 +14,8 @@ import csv
 import os
 import gc
 
-allOfThem: bool = True
-selectedAlgorithm: str = "NSGA3"
+allOfThem: bool = False
+selectedAlgorithm: str = "NSGA2"
 
 counter: bool = True
 
